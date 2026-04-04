@@ -1,0 +1,60 @@
+$linear-green: linear-gradient(45deg, #10AE3B, #33D960);
+$green: #10AE3B;
+$center: auto 0;
+
+// assets/scss/_variables.scss
+
+// === COLORS ===
+$primary: #10AE3B;       
+$orange: #FF8800;          // основной зеленый цвет
+// $primary-light: lighten($primary, 10%);
+// $primary-dark: darken($primary, 10%);
+$white: #fff;
+$gray-light: #F8F8F8;              // фон карточек
+$gray-text: #7C7C7C;                        // цвет текста в карточках
+$gray-border: #e5e5e5;              // для будущих границ
+$black: #000;
+
+// === GRADIENTS ===
+$linear-green: linear-gradient(45deg, #10AE3B, #33D960);
+
+// === TYPOGRAPHY ===
+$font-family-base: 'Inter', sans-serif; // пример, укажи свой шрифт
+$font-size-h1: 3.2rem; 
+$font-size-h2: 2.8rem;
+$font-size-h3: 2.4rem;
+$font-size-pp: 1.8rem;
+$font-size-p: 1.6rem;
+$font-size-sm: 1.4rem;
+             // заголовок первого уровня
+$font-size-body: 1.6rem;            // основной текст в карточках
+$font-weight-bold: 800;
+$font-weight-normal: 400;
+
+// === SPACING ===
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 20px;
+$spacing-2xl: 24px;
+$spacing-3xl: 32px;
+
+// === BORDER RADIUS ===
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+$radius-xl: 16px;
+
+// === LAYOUT ===
+$content-width: 75vw;                // ширина блока с категориями
+$header-padding-x: 200px;             // горизонтальные отступы в шапке (если нужно)
+$header-padding-x: 20rem;
+$header-height: 46px;
+
+// === BREAKPOINTS (для медиазапросов) ===
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+$breakpoint-xxl: 1400px;
