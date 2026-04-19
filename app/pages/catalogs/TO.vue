@@ -1,147 +1,125 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
+definePageMeta({ layout: 'default' })
 
+const categories = [
+  { title: 'Автомобильные фильтры', image: '/Categories/filters.png' },
+  { title: 'Тормозные колодки', image: '/Categories/brakePads.png' },
+  { title: 'Жидкости в автомобиль', image: '/Categories/carOil.png' },
+  { title: 'Свечи зажигания', image: '/Categories/ignitionSparks.png' },
+  { title: 'Щётки стеклоочистителя', image: '/Categories/wiperBlades.png' },
+  { title: 'Прочее', image: '/Categories/other.png' },
+]
 </script>
 
 <template>
-    <div class="car-search">
-        <CarSearch></CarSearch>
-    </div>
-    <div class="categories">
-        <div class="categoryBlock__wrapper">
-            <h1>Каталоги для ТО</h1>
-            <div class="categoryBlock__categories">
-                <div class="categories__popular">
-                    <div>
-                        <NuxtLink to="/" class="categoryBlock-card">
-                            <NuxtImg format="webp" src="/Categories/filters.png" alt="Оригинальный каталог" />
-                            <p>Автомобильные фильтры</p>
-                        </NuxtLink>
-                    </div>
-                    <div>
-                        <NuxtLink to="/" class="categoryBlock-card">
-                            <NuxtImg format="webp" src="/Categories/brakePads.png" alt="Запчасти для ТО" />
+  <main class="catalog-section shop-page">
+    <div class="catalog-section__breadcrumbs">Главная страница > Каталог для ТО</div>
 
-                            <p>Колодки тормозные</p>
-                        </NuxtLink>
-                    </div>
-                </div>
-                <div class="categories__other-stuff">
-                    <div>
-                        <NuxtLink class="categoryBlock-card">
-                            <NuxtImg format="webp" src="/Categories/carOil.png" alt="Аксессуары" />
+    <CarSearch />
 
-                            <p>Жидкости в авто</p>
-                        </NuxtLink>
-                    </div>
-                    <div>
-                        <NuxtLink class="categoryBlock-card">
-                            <NuxtImg format="webp" src="/Categories/ignitionSparks.png" alt="Шины и диски" />
-
-                            <p>Свечи зажигания</p>
-                        </NuxtLink>
-                    </div>
-                    <div>
-                        <NuxtLink class="categoryBlock-card">
-                            <NuxtImg format="webp" src="/Categories/wiperBlades.png" alt="Аккумуляторы" />
-
-                            <p>Щётки стеклоочистителя</p>
-                        </NuxtLink>
-                    </div>
-                    <div>
-                        <NuxtLink class="categoryBlock-card">
-                            <NuxtImg format="webp" src="/Categories/other.png" alt="Автохимия" />
-
-                            <p>Прочее</p>
-                        </NuxtLink>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
+    <section class="catalog-section__categories">
+      <div v-for="category in categories" :key="category.title" class="catalog-section__category-card">
+        <NuxtImg :src="category.image" :alt="category.title" />
+        {{ category.title }}
+      </div>
+    </section>
+  </main>
 </template>
 
 <style scoped lang="scss">
-@use '~/assets/scss/variables' as *;
-
-.car-search {
-    width: $content-width;
-    margin: 0 auto;
-    margin-bottom: $spacing-lg;
+.shop-page {
+  width: min(144rem, calc(100% - 4rem));
+  margin: 0 auto;
 }
 
-.categoryBlock__wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-lg;
-    background-color: $white;
-    width: $content-width;
-    margin: 0 auto;
-    border-radius: $radius-xl;
-    padding: $spacing-xl;
+.catalog-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
 }
 
-.categoryBlock__categories {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: $spacing-2xl;
-    .most a {
-        text-decoration: none;
-        transition-duration: 0.2s;
-    }
-
-    a:hover {
-        background-color: #ececec;
-        transition-duration: 0.2s;
-
-        img {
-            width: 130px;
-            transition-duration: 0.2s;
-            top: -40px;
-        }
-    }
-
-    .categories__popular {
-        text-decoration: none;
-        display: grid;
-        grid-template-columns: 2fr 2fr;
-        gap: $spacing-2xl;
-        a{
-            text-decoration: none;
-        }
-    }
-
-    .categories__other-stuff {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: $spacing-2xl;
-    }
+.catalog-section__breadcrumbs {
+  color: #ababab;
+  font-size: 1.45rem;
 }
 
-.categoryBlock-card {
-    position: relative;
-    background-color: $gray-light;
-    display: flex;
-    align-items: end;
-    justify-content: center;
-    padding-bottom: $spacing-lg;
-    width: 100%;
-    height: 140px;
-    border-radius: $radius-lg;
+.catalog-section__categories {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem;
+  padding: 3rem;
+  background: #fff;
+  border-radius: 2.8rem;
+}
+
+.catalog-section__category-card {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 18rem;
+  padding: 1.8rem;
+  background: #fafafa;
+  border-radius: 2rem;
+  color: #5b5b5b;
+  font-size: 2rem;
+  text-align: center;
+  transition-duration: 0.3s;
+
+  img {
+    position: absolute;
+    top: -3rem;
+    width: 13.5rem;
+    transition-duration: 0.3s;
+  }
+}
+
+.catalog-section__category-card:hover {
+  background: #eeeeee;
+  transition-duration: 0.3s;
+  cursor: pointer;
+  img {
+    position: absolute;
+    top: -4rem;
+    width: 14.5rem;
+    transition-duration: 0.3s;
+  }
+}
+
+@media (max-width: 991px) {
+  .catalog-section__categories {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .shop-page {
+    width: calc(100% - 1.6rem);
+  }
+
+  .catalog-section {
+    gap: 0.8rem;
+  }
+
+  .catalog-section__breadcrumbs {
+    font-size: 1.2rem;
+  }
+
+  .catalog-section__categories {
+    gap: 1.2rem;
+    padding: 1.6rem;
+    border-radius: 2rem;
+  }
+
+  .catalog-section__category-card {
+    min-height: 10.8rem;
+    border-radius: 1.4rem;
+    font-size: 1.35rem;
 
     img {
-        position: absolute;
-        top: -30px;
-        width: 120px;
-        transition-duration: 0.2s;
+      top: 1.2rem;
+      width: 6rem;
     }
-
-    p {
-        font-size: $font-size-body;
-        color: $gray-text;
-    }
-}
-.categories {
-    margin-bottom: 20%;
+  }
 }
 </style>

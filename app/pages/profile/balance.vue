@@ -1,71 +1,55 @@
 ﻿<script setup lang="ts">
-const accountBalance = '0\u20BD'
-
 const operations = [
-  {
-    id: '12513642',
-    type: 'Покупка',
-    amount: '-3000\u20BD',
-    amountClass: 'balance-table__amount--negative',
-    date: '11.01.2026',
-    status: 'Доставлен',
-  },
-  {
-    id: '12513642',
-    type: 'Пополнение',
-    amount: '+3000\u20BD',
-    amountClass: 'balance-table__amount--positive',
-    date: '11.01.2026',
-    status: 'Доставлен',
-  },
+  { type: 'Пополнение баланса', amount: '+3000₽', positive: true, accent: '', meta: '' },
+  { type: 'Оплата', amount: '-1500₽', positive: false, accent: '143543', meta: 'id заказа', date: '12.01.2026' },
+  { type: 'Оплата', amount: '-1500₽', positive: false, accent: '', meta: '', date: '' },
+  { type: 'Пополнение', amount: '+3000₽', positive: true, accent: '', meta: '' },
 ]
 </script>
 
 <template>
   <section class="balance-page">
-    <article class="balance-card">
-      <div class="balance-card__top">
-        <div class="balance-card__icon">
-          <NuxtImg src="/icons/plus.svg" alt="Иконка баланса" />
-        </div>
-
-        <div class="balance-card__meta">
-          <strong>{{ accountBalance }}</strong>
+    <article class="balance-page__hero">
+      <div class="balance-page__hero-top">
+        <div>
+          <strong>144 000₽</strong>
           <span>Баланс аккаунта</span>
         </div>
+
+        <div class="balance-page__discount">
+          <strong>15%</strong>
+          <span>Скидка</span>
+        </div>
       </div>
 
-      <button class="balance-card__button" type="button">Пополнить баланс</button>
+      <div class="balance-page__hero-bottom">
+        <h2>ЧиназесАвто</h2>
+        <button type="button">Пополнить</button>
+      </div>
     </article>
 
-    <section class="balance-operations">
-      <h2>Операции по счёту</h2>
+    <section class="balance-page__history">
+      <h2>История операций</h2>
+      <span class="balance-page__today">Сегодня</span>
 
-      <div class="balance-table">
-        <div class="balance-table__head">
-          <span>ID операции</span>
-          <span>Тип операции</span>
-          <span>Сумма</span>
-          <span>Дата</span>
-          <span>Статус</span>
+      <article v-for="(operation, index) in operations" :key="`${operation.type}-${index}`" class="balance-page__operation">
+        <div>
+          <h3 :class="{ 'balance-page__operation-title--positive': operation.positive, 'balance-page__operation-title--negative': !operation.positive }">
+            {{ operation.type }}
+          </h3>
+          <strong v-if="operation.accent">{{ operation.accent }}</strong>
+          <span v-if="operation.meta">{{ operation.meta }}</span>
         </div>
 
-        <div class="balance-table__body">
-          <div
-            v-for="(operation, index) in operations"
-            :key="`${operation.id}-${index}`"
-            class="balance-table__row"
-          >
-            <span>{{ operation.id }}</span>
-            <span>{{ operation.type }}</span>
-            <span class="balance-table__amount" :class="operation.amountClass">
-              {{ operation.amount }}
-            </span>
-            <span>{{ operation.date }}</span>
-            <span>{{ operation.status }}</span>
-          </div>
+        <div class="balance-page__operation-side">
+          <strong :class="{ 'balance-page__amount--positive': operation.positive, 'balance-page__amount--negative': !operation.positive }">
+            {{ operation.amount }}
+          </strong>
+          <span v-if="operation.date">{{ operation.date }}</span>
         </div>
-      </div>
+      </article>
+
+      <button type="button" class="balance-page__more">Показать больше</button>
     </section>
   </section>
 </template>
@@ -73,140 +57,226 @@ const operations = [
 <style scoped lang="scss">
 .balance-page {
   display: flex;
-  flex: 1;
   flex-direction: column;
   gap: 2rem;
-  min-width: 0;
 }
 
-.balance-card,
-.balance-table {
-  background: #fff;
-  border-radius: $radius-md;
-  box-shadow: 0 12px 34px rgba(28, 30, 32, 0.04);
+.balance-page__hero {
+  padding: 2.4rem;
+  border-radius: 2.8rem;
+  background: $linear-green;
+  color: #fff;
 }
 
-.balance-card {
-  width: 100%;
-  max-width: 36.8rem;
-  padding: 2rem 1.8rem 1.8rem;
-}
-
-.balance-card__top {
+.balance-page__hero-top,
+.balance-page__hero-bottom {
   display: flex;
-  align-items: center;
-  gap: 2rem;
-  margin-bottom: 2.2rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.6rem;
 }
 
-.balance-card__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 4.6rem;
-  height: 4.6rem;
-  flex-shrink: 0;
-  border: 0.3rem solid $green;
-  border-radius: 50%;
-
-  img {
-    width: 1.8rem;
-    height: 1.8rem;
-  }
-}
-
-.balance-card__meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.balance-page__hero-top {
+  margin-bottom: 5rem;
 
   strong {
-    font-size: 2rem;
-    font-weight: 500;
-    color: #333;
+    display: block;
+    font-size: 5rem;
+    font-weight: 800;
     line-height: 1;
   }
 
   span {
-    font-size: 1.4rem;
-    color: #7c7c7c;
-    line-height: 1.3;
+    display: block;
+    margin-top: 0.8rem;
+    font-size: 2rem;
   }
 }
 
-.balance-card__button {
-  width: 100%;
-  min-height: 4.4rem;
-  border: 0;
-  border-radius: 0.8rem;
-  background: $green;
-  font-size: 1.6rem;
-  font-weight: 400;
-  color: #fff;
-  cursor: pointer;
+.balance-page__discount {
+  text-align: right;
+
+  strong {
+    font-size: 3.2rem;
+  }
 }
 
-.balance-operations {
+.balance-page__hero-bottom h2 {
+  align-self: flex-end;
+  font-size: 4rem;
+  font-weight: 800;
+}
+
+.balance-page__hero-bottom button {
+  min-width: 23rem;
+  min-height: 6.8rem;
+  border: 0;
+  border-radius: 2rem;
+  background: #fff;
+  color: $green;
+  font-size: 2.2rem;
+  font-weight: 600;
+}
+
+.balance-page__history {
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;
+  gap: 1.8rem;
 
   h2 {
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: #373737;
-    line-height: 1.2;
+    align-self: center;
+    color: #313131;
+    font-size: 4rem;
+    font-weight: 800;
   }
 }
 
-.balance-table {
-  width: 100%;
-  padding: 0 2.6rem;
-  overflow: hidden;
+.balance-page__today {
+  color: #3f3f3f;
+  font-size: 2rem;
+  font-weight: 600;
 }
 
-.balance-table__head,
-.balance-table__row {
-  display: grid;
-  grid-template-columns: 1.2fr 1.4fr 1fr 1fr 1fr;
-  gap: 1.6rem;
-  align-items: center;
-}
-
-.balance-table__head {
-  padding: 1.2rem 0;
-  border-bottom: 1px solid #ececec;
-
-  span {
-    font-size: 1.3rem;
-    color: #9b9b9b;
-  }
-}
-
-.balance-table__body {
+.balance-page__operation {
   display: flex;
-  flex-direction: column;
-}
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 2rem 2.4rem;
+  background: #fff;
+  border-radius: 2.4rem;
+  box-shadow: 0 16px 34px rgba(28, 30, 32, 0.05);
 
-.balance-table__row {
-  padding: 1.9rem 0;
-
+  h3,
+  strong,
   span {
+    display: block;
+  }
+
+  h3 {
+    margin-bottom: 0.6rem;
+    font-size: 2rem;
+    font-weight: 500;
+  }
+
+  > div > strong {
+    color: #17b24f;
+    font-size: 2.8rem;
+    font-weight: 500;
+  }
+
+  > div > span {
+    color: #9f9f9f;
     font-size: 1.5rem;
-    color: #434343;
-    line-height: 1.35;
   }
 }
 
-.balance-table__amount {
-  font-weight: 400;
+.balance-page__operation-title--positive,
+.balance-page__amount--positive {
+  color: #17b24f;
 }
 
-.balance-table__amount--negative {
-  color: #ff3b30 !important;
+.balance-page__operation-title--negative,
+.balance-page__amount--negative {
+  color: #e14d5a;
 }
 
-.balance-table__amount--positive {
-  color: $green !important;
+.balance-page__operation-side {
+  text-align: right;
+
+  strong {
+    font-size: 2.8rem;
+  }
+
+  span {
+    margin-top: 2rem;
+    color: #9f9f9f;
+    font-size: 1.5rem;
+  }
+}
+
+.balance-page__more {
+  align-self: center;
+  border: 0;
+  background: transparent;
+  color: $green;
+  font-size: 1.8rem;
+}
+
+@media (max-width: 767px) {
+  .balance-page {
+    gap: 0.8rem;
+  }
+
+  .balance-page__hero {
+    padding: 1.6rem;
+    border-radius: 1.8rem;
+  }
+
+  .balance-page__hero-top {
+    margin-bottom: 2.8rem;
+
+    strong {
+      font-size: 2.8rem;
+    }
+
+    span {
+      font-size: 1.4rem;
+    }
+  }
+
+  .balance-page__discount strong {
+    font-size: 2rem;
+  }
+
+  .balance-page__hero-bottom h2 {
+    font-size: 1.8rem;
+  }
+
+  .balance-page__hero-bottom button {
+    min-width: 13.6rem;
+    min-height: 4.8rem;
+    border-radius: 1.4rem;
+    font-size: 1.5rem;
+  }
+
+  .balance-page__history {
+    gap: 1.2rem;
+
+    h2 {
+      font-size: 1.8rem;
+    }
+  }
+
+  .balance-page__today {
+    font-size: 1.5rem;
+  }
+
+  .balance-page__operation {
+    padding: 1.3rem 1.4rem;
+    border-radius: 1.6rem;
+
+    h3 {
+      font-size: 1.5rem;
+    }
+
+    > div > strong,
+    .balance-page__operation-side strong {
+      font-size: 1.8rem;
+    }
+
+    > div > span,
+    .balance-page__operation-side span {
+      font-size: 1.2rem;
+    }
+  }
+
+  .balance-page__operation-side span {
+    margin-top: 1.6rem;
+  }
+
+  .balance-page__more {
+    font-size: 1.4rem;
+  }
 }
 </style>

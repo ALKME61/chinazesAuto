@@ -566,4 +566,172 @@ watch(linePath, async () => {
     color: #444;
   }
 }
+
+@media (max-width: 991px) {
+  .discounts-page__top {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-card__body {
+    grid-template-columns: 5.4rem minmax(0, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .discounts-page {
+    gap: 1.6rem;
+  }
+
+  .discount-card,
+  .discount-scale,
+  .chart-card {
+    border-radius: 2rem;
+  }
+
+  .discount-card {
+    padding: 1.8rem 1.6rem;
+  }
+
+  .discount-card__main {
+    gap: 1.2rem;
+  }
+
+  .discount-card__icon {
+    width: 4.2rem;
+    height: 4.2rem;
+
+    img {
+      width: 3.6rem;
+      height: 3.6rem;
+    }
+  }
+
+  .discount-card__meta,
+  .discount-card__footer {
+    strong {
+      font-size: 1.8rem;
+    }
+
+    span {
+      font-size: 1.25rem;
+    }
+  }
+
+  .discount-scale {
+    padding: 1.8rem 1.6rem;
+    gap: 1rem;
+  }
+
+  .discount-scale__header,
+  .discount-scale__row {
+    grid-template-columns: minmax(0, 1fr) 7rem 5.8rem;
+    column-gap: 1rem;
+  }
+
+  .discount-scale__header {
+    margin-bottom: 0.4rem;
+
+    .discount-scale__heading {
+      font-size: 1.2rem;
+    }
+  }
+
+  .discount-scale__row {
+    span,
+    strong {
+      font-size: 1.3rem;
+    }
+  }
+
+  .discount-scale__line {
+    max-width: 100%;
+  }
+
+  .chart-card {
+    padding: 1.8rem 1.4rem 1.4rem;
+    overflow: hidden;
+  }
+
+  .chart-card__head {
+    margin-bottom: 1.6rem;
+  }
+
+  .chart-card__period {
+    font-size: 1.5rem;
+  }
+
+  .chart-card__body {
+    grid-template-columns: 4.6rem minmax(48rem, 1fr);
+    gap: 0.8rem;
+    overflow-x: auto;
+    padding-bottom: 0.2rem;
+  }
+
+  .chart-card__axis--y {
+    height: 28rem;
+    padding: 1.2rem 0 4rem;
+
+    span {
+      font-size: 1rem;
+    }
+  }
+
+  .chart-card__plot {
+    height: 28rem;
+    padding-bottom: 4rem;
+  }
+
+  .chart-card__canvas {
+    height: calc(100% - 4rem);
+  }
+
+  .chart-card__line {
+    stroke-width: 2;
+  }
+
+  .chart-card__marker-ring--outer {
+    width: 4.2rem;
+    height: 4.2rem;
+  }
+
+  .chart-card__marker-ring--inner {
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+
+  .chart-card__marker-dot {
+    width: 1.2rem;
+    height: 1.2rem;
+    border-width: 0.45rem;
+  }
+
+  .chart-card__tooltip {
+    width: 15rem;
+    padding: 1.2rem 1rem 1rem;
+    border-radius: 1.4rem;
+    transform: translate(1rem, 1.6rem);
+
+    h3 {
+      margin-bottom: 1rem;
+      font-size: 1.35rem;
+    }
+  }
+
+  .chart-card__tooltip-grid {
+    gap: 0.8rem;
+
+    strong {
+      font-size: 1.15rem;
+    }
+
+    span {
+      font-size: 1rem;
+    }
+  }
+
+  .chart-card__axis--x span {
+    font-size: 1.1rem;
+  }
+}
 </style>

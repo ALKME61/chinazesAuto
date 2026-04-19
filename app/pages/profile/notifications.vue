@@ -1,124 +1,156 @@
-<script setup lang="ts">
-const notifications = [
+﻿<script setup lang="ts">
+const groups = [
   {
-    title: 'Информация о заказах',
-    orderId: '12422',
-    messageStart: 'Заказ',
-    messageEnd: 'готов к выдаче!',
-    address: 'Вы можете забрать его по адресу - г. Москва, Ул. Пушкинская, д.22',
+    label: 'Сегодня',
+    items: [
+      'Заказ №12422 готов к выдаче',
+      'Заказ №12422 готов к выдаче',
+    ],
   },
   {
-    title: 'Информация о заказах',
-    orderId: '12422',
-    messageStart: 'Заказ',
-    messageEnd: 'готов к выдаче!',
-    address: 'Вы можете забрать его по адресу - г. Москва, Ул. Пушкинская, д.22',
+    label: 'На этой неделе',
+    items: [
+      'Заказ №12422 готов к выдаче',
+      'Заказ №12422 готов к выдаче',
+    ],
   },
 ]
 </script>
 
 <template>
-  <section class="notifications">
-    <article
-      v-for="(notification, index) in notifications"
-      :key="`${notification.orderId}-${index}`"
-      class="notification-card"
-    >
-      <div class="notification-card__head">
-        <div class="notification-card__icon-wrap">
-          <NuxtImg
-            class="notification-card__icon"
-            src="/icons/profile/notificationIcon.svg"
-            alt="Иконка уведомления"
-          />
-          <span class="notification-card__badge" />
-        </div>
+  <section class="notifications-page">
+    <h1>Уведомления</h1>
 
-        <h2>{{ notification.title }}</h2>
-      </div>
+    <div class="notifications-page__groups">
+      <section v-for="group in groups" :key="group.label" class="notifications-page__group">
+        <h2>{{ group.label }}</h2>
 
-      <div class="notification-card__body">
-        <p>
-          {{ notification.messageStart }}
-          <span>№{{ notification.orderId }}</span>
-          {{ notification.messageEnd }}
-        </p>
-        <p>{{ notification.address }}</p>
-      </div>
-    </article>
+        <article v-for="item in group.items" :key="`${group.label}-${item}`" class="notifications-page__item">
+          <span class="notifications-page__dot" />
+          <div class="notifications-page__icon-wrap">
+            <NuxtImg src="/icons/profile/notificationIcon.svg" alt="" />
+            <span class="notifications-page__badge" />
+          </div>
+          <p>{{ item }}</p>
+        </article>
+      </section>
+    </div>
   </section>
 </template>
 
 <style scoped lang="scss">
-.notifications {
+.notifications-page {
   display: flex;
-  flex: 1;
   flex-direction: column;
-  gap: 2.2rem;
-  min-width: 0;
+  gap: 2rem;
 }
 
-.notification-card {
-  width: 100%;
-  padding: 2.4rem 2.6rem 2rem;
-  background: #fff;
-  border-radius: $radius-md;
-  box-shadow: 0 12px 34px rgba(28, 30, 32, 0.04);
+.notifications-page h1 {
+  color: #2c2c2c;
+  font-size: 3.6rem;
+  font-weight: 800;
 }
 
-.notification-card__head {
+.notifications-page__groups {
   display: flex;
-  align-items: center;
-  gap: 1.6rem;
-  margin-bottom: 1.8rem;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2.4rem;
+  background: #fff;
+  border-radius: 2.4rem;
+  box-shadow: 0 16px 38px rgba(28, 30, 32, 0.05);
+}
+
+.notifications-page__group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 
   h2 {
+    color: #3a3a3a;
     font-size: 1.8rem;
     font-weight: 600;
-    color: #373737;
-    line-height: 1.2;
   }
 }
 
-.notification-card__icon-wrap {
-  position: relative;
-  display: flex;
+.notifications-page__item {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 1.2rem;
   align-items: center;
-  justify-content: center;
-  width: 3.4rem;
-  height: 3.4rem;
-  flex-shrink: 0;
-}
-
-.notification-card__icon {
-  width: 2.6rem;
-  height: 2.6rem;
-}
-
-.notification-card__badge {
-  position: absolute;
-  top: -0.1rem;
-  right: -0.15rem;
-  width: 1.1rem;
-  height: 1.1rem;
-  background: $green;
-  border: 0.2rem solid #fff;
-  border-radius: 50%;
-}
-
-.notification-card__body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  padding: 1.4rem 0;
+  border-bottom: 1px solid #efefef;
 
   p {
-    font-size: 1.6rem;
-    line-height: 1.4;
-    color: #474747;
+    color: #3f3f3f;
+    font-size: 1.7rem;
+  }
+}
+
+.notifications-page__dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: $orange;
+}
+
+.notifications-page__icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+
+  img {
+    width: 2.4rem;
+  }
+}
+
+.notifications-page__badge {
+  position: absolute;
+  top: -0.1rem;
+  right: -0.1rem;
+  width: 1rem;
+  height: 1rem;
+  border: 0.2rem solid #fff;
+  border-radius: 50%;
+  background: $green;
+}
+
+@media (max-width: 991px) {
+  .notifications-page h1 {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .notifications-page {
+    gap: 0.8rem;
   }
 
-  span {
-    color: $orange;
+  .notifications-page h1 {
+    font-size: 1.8rem;
+  }
+
+  .notifications-page__groups {
+    gap: 0.8rem;
+    padding: 1.6rem;
+    background: #fff;
+    border-radius: 2rem;
+    box-shadow: none;
+  }
+
+  .notifications-page__group h2 {
+    font-size: 1.4rem;
+  }
+
+  .notifications-page__item {
+    padding: 1.3rem 0;
+
+    p {
+      font-size: 1.35rem;
+    }
   }
 }
 </style>

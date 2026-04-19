@@ -1,235 +1,270 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
+import ShopProductCard from '~/components/shop/ShopProductCard.vue'
+
 const route = useRoute()
+const showFilters = ref(false)
 
-const selectedCar = 'BMW 5 IV седан (E39) 540 i'
-const brandOptions = ['BOSCH', 'Zekkert', 'Stellox', 'Zekkert', 'Stellox']
-
-const products = Array.from({ length: 8 }, (_, index) => ({
+const brandOptions = ['BOSCH', 'Zekkert', 'Stellox', 'Hiki-Lo', 'Electro']
+const products = Array.from({ length: 12 }, (_, index) => ({
   id: index + 1,
   title: 'BOSCH S5 Аккумулятор',
   stock: 'В наличии 5 шт',
-  delivery: index === 0 ? 'Доставка 24 часа' : 'Доставка 2-3 рабочих дня',
-  isFastDelivery: index === 0,
+  delivery: index % 4 === 0 ? 'Доставка 24 часа' : 'Доставка 2-3 рабочих дня',
   price: '12499₽',
   image: '/productExample.png',
+  to: '/product/bosch-s5-akkumulyator',
 }))
 
-const pages = [1, 2, 3, 4]
+const categoryTitles: Record<string, string> = {
+  accessories: 'Аксессуары',
+  tires: 'Шины и диски',
+  akb: 'АКБ',
+  chemistry: 'Автохимия',
+  oil: 'Масла и техжидкости',
+  tools: 'Инструменты',
+}
 
 const categoryName = computed(() => {
-  const queryValue = route.query.categoryName
-
-  if (typeof queryValue === 'string' && queryValue.length) {
-    return queryValue
+  const raw = Array.isArray(route.query.categoryName) ? route.query.categoryName[0] : route.query.categoryName
+  if (!raw || typeof raw !== 'string') {
+    return 'АКБ'
   }
 
-  return 'accumulators'
+  return categoryTitles[raw] ?? raw
 })
+
+watch(showFilters, (value) => {
+  if (import.meta.client && window.innerWidth <= 991) {
+    document.body.style.overflow = value ? 'hidden' : ''
+  }
+})
+
+onBeforeUnmount(() => {
+  if (import.meta.client) {
+    document.body.style.overflow = ''
+  }
+})
+
+watch(
+  () => route.fullPath,
+  () => {
+    showFilters.value = false
+  },
+)
 </script>
 
 <template>
-  <section class="catalog-page" :data-category="categoryName">
-    <aside class="catalog-filters">
-      <div class="catalog-filters__title">
-        <span class="catalog-filters__icon" />
-        <h2>Фильтры</h2>
-      </div>
+  <main class="catalog-page shop-page">
+    <div class="catalog-page__breadcrumbs">Главная страница > BMW V (E39) 2.0i > {{ categoryName }}</div>
 
-      <div class="catalog-filter">
-        <button class="catalog-filter__heading" type="button">
-          <span class="catalog-filter__chevron catalog-filter__chevron--up" />
-          <span>Бренд</span>
-        </button>
+    <div class="catalog-page__layout">
+      <Transition name="catalog-filters-fade">
+        <div v-if="showFilters" class="catalog-page__mobile-backdrop" @click.self="showFilters = false">
+          <aside class="catalog-page__filters catalog-page__filters--drawer">
+            <div class="catalog-page__filters-head">
+              <h2>Фильтры</h2>
+              <button type="button" aria-label="Закрыть фильтры" @click="showFilters = false">×</button>
+            </div>
+            <div class="catalog-page__filters-body">
+              <section class="catalog-filter">
+                <h3>Бренд</h3>
+                <label class="catalog-filter__search">
+                  <NuxtImg src="/icons/search.svg" alt="" />
+                  <input type="text" placeholder="Поиск">
+                </label>
+                <label class="catalog-filter__check catalog-filter__check--all">
+                  <input type="checkbox">
+                  <span />
+                  <em>Все бренды</em>
+                </label>
+                <label v-for="brand in brandOptions" :key="brand" class="catalog-filter__check">
+                  <input type="checkbox">
+                  <span />
+                  <em>{{ brand }}</em>
+                </label>
+              </section>
 
-        <label class="catalog-filter__search">
-          <NuxtImg src="/icons/search.svg" alt="" />
-          <input type="text" placeholder="Поиск">
-        </label>
+              <section class="catalog-filter">
+                <h3>Цена</h3>
+                <div class="catalog-filter__price-grid">
+                  <input type="text" placeholder="От 2349">
+                  <input type="text" placeholder="До 23699">
+                </div>
+              </section>
+            </div>
+          </aside>
+        </div>
+      </Transition>
 
-        <label class="catalog-filter__check catalog-filter__check--all">
-          <input type="checkbox">
-          <span class="catalog-filter__box" />
-          <span>Все бренды</span>
-        </label>
+      <aside class="catalog-page__filters catalog-page__filters--desktop">
+        <div class="catalog-page__filters-title">
+          <span />
+          <h2>Фильтры</h2>
+        </div>
 
-        <div class="catalog-filter__divider" />
+        <section class="catalog-filter">
+          <button type="button" class="catalog-filter__heading">
+            <i />
+            <strong>Бренд</strong>
+          </button>
 
-        <label
-          v-for="brandOption in brandOptions"
-          :key="brandOption"
-          class="catalog-filter__check"
-        >
-          <input type="checkbox">
-          <span class="catalog-filter__box" />
-          <span>{{ brandOption }}</span>
-        </label>
+          <label class="catalog-filter__search">
+            <NuxtImg src="/icons/search.svg" alt="" />
+            <input type="text" placeholder="Поиск">
+          </label>
 
-        <button class="catalog-filter__more" type="button">
-          Показать ещё
-          <span class="catalog-filter__chevron catalog-filter__chevron--down" />
-        </button>
-      </div>
+          <label class="catalog-filter__check catalog-filter__check--all">
+            <input type="checkbox">
+            <span />
+            <em>Все бренды</em>
+          </label>
 
-      <div class="catalog-filter">
-        <button class="catalog-filter__heading" type="button">
-          <span class="catalog-filter__chevron catalog-filter__chevron--up" />
-          <span>Цена</span>
-        </button>
+          <label v-for="brand in brandOptions" :key="brand" class="catalog-filter__check">
+            <input type="checkbox">
+            <span />
+            <em>{{ brand }}</em>
+          </label>
+        </section>
 
-        <div class="catalog-filter__price">
-          <label>
+        <section class="catalog-filter">
+          <button type="button" class="catalog-filter__heading">
+            <i />
+            <strong>Цена</strong>
+          </button>
+
+          <div class="catalog-filter__price-grid">
             <input type="text" placeholder="От 2349">
-          </label>
-
-          <label>
             <input type="text" placeholder="До 23699">
-          </label>
-        </div>
-      </div>
+          </div>
+        </section>
+      </aside>
 
-      <div class="catalog-filter catalog-filter--collapsed">
-        <button class="catalog-filter__heading" type="button">
-          <span class="catalog-filter__chevron catalog-filter__chevron--down" />
-          <span>Тип конструкции</span>
-        </button>
-      </div>
-    </aside>
-
-    <section class="catalog-results">
-      <div class="catalog-results__top">
-        <div class="catalog-results__fit">
+      <section class="catalog-page__results">
+        <div class="catalog-page__fit">
           <span>Подходит на:</span>
-          <div class="catalog-results__fit-row">
-            <strong>{{ selectedCar }}</strong>
-            <button type="button" aria-label="Удалить выбранный автомобиль">×</button>
-          </div>
+          <strong>BMW 5 IV седан (E39) 540 i</strong>
+          <button type="button">×</button>
         </div>
 
-        <div class="catalog-results__sort">
-          <button class="catalog-sort catalog-sort--active" type="button">
-            <span class="catalog-sort__currency">₽↓</span>
-            <span>По убыванию</span>
+        <div class="catalog-page__controls">
+          <button type="button" class="catalog-page__filter-button" @click="showFilters = true">
+            <NuxtImg src="/icons/burger.svg" alt="" />
           </button>
 
-          <button class="catalog-sort" type="button">
-            <span class="catalog-sort__doc" />
-            <span>Популярные</span>
-          </button>
+          <div class="catalog-page__sorts">
+            <button type="button" class="catalog-page__sort catalog-page__sort--active">По убыванию</button>
+            <button type="button" class="catalog-page__sort">Популярные</button>
+            <button type="button" class="catalog-page__sort">Быстрее всего</button>
+          </div>
 
-          <button class="catalog-sort" type="button">
-            <span class="catalog-sort__clock" />
-            <span>Быстрее всего</span>
-          </button>
+          <button type="button" class="catalog-page__mobile-sort">Сначала популярные</button>
         </div>
-      </div>
 
-      <div class="catalog-grid">
-        <article
-          v-for="product in products"
-          :key="product.id"
-          class="catalog-card"
-        >
-          <div class="catalog-card__image">
-            <NuxtImg :src="product.image" alt="Изображение аккумулятора" />
-          </div>
-
-          <div class="catalog-card__content">
-            <span class="catalog-card__stock">{{ product.stock }}</span>
-            <h3>{{ product.title }}</h3>
-            <p :class="{ 'catalog-card__delivery--fast': product.isFastDelivery }">
-              {{ product.delivery }}
-            </p>
-            <strong>{{ product.price }}</strong>
-          </div>
-
-          <button class="catalog-card__button" type="button">Добавить в корзину</button>
-        </article>
-      </div>
-
-      <nav class="catalog-pagination" aria-label="Пагинация каталога">
-        <button class="catalog-pagination__arrow" type="button" aria-label="Предыдущая страница">
-          <span />
-        </button>
-
-        <button
-          v-for="page in pages"
-          :key="page"
-          class="catalog-pagination__page"
-          :class="{ 'catalog-pagination__page--active': page === 1 }"
-          type="button"
-        >
-          {{ page }}
-        </button>
-
-        <button class="catalog-pagination__arrow catalog-pagination__arrow--next" type="button" aria-label="Следующая страница">
-          <span />
-        </button>
-      </nav>
-    </section>
-  </section>
+        <div class="catalog-page__grid">
+          <ShopProductCard
+            v-for="product in products"
+            :key="product.id"
+            :title="product.title"
+            :stock="product.stock"
+            :delivery="product.delivery"
+            :price="product.price"
+            :image="product.image"
+            :to="product.to"
+          />
+        </div>
+      </section>
+    </div>
+  </main>
 </template>
 
 <style scoped lang="scss">
-.catalog-page {
-  display: grid;
-  grid-template-columns: clamp(24rem, 19vw, 27.6rem) minmax(0, 1fr);
-  gap: clamp(1.4rem, 1.5vw, 1.8rem);
-  width: $content-width;
+.shop-page {
+  width: min(144rem, calc(100% - 4rem));
   margin: 0 auto;
 }
 
-.catalog-filters,
-.catalog-results {
+.catalog-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+.catalog-page__breadcrumbs {
+  color: #ababab;
+  font-size: 1.45rem;
+}
+
+.catalog-page__layout {
+  display: grid;
+  grid-template-columns: minmax(26rem, 30rem) minmax(0, 1fr);
+  gap: 2rem;
+}
+
+.catalog-page__filters,
+.catalog-page__results {
   background: #fff;
-  border-radius: 2rem;
+  border-radius: 2.8rem;
 }
 
-.catalog-filters {
+.catalog-page__filters--desktop {
+  padding: 2.4rem 2rem;
   height: fit-content;
-  padding: 2.1rem 1.8rem 2.3rem;
 }
 
-.catalog-filters__title {
+.catalog-page__filters-title {
   display: flex;
   align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
 
+  span {
+    position: relative;
+    width: 1.6rem;
+    height: 1.2rem;
+
+    &::before,
+    &::after {
+      position: absolute;
+      left: 0;
+      height: 0.2rem;
+      border-radius: 999px;
+      background: #8f8f8f;
+      content: '';
+    }
+
+    &::before {
+      top: 0.1rem;
+      width: 100%;
+    }
+
+    &::after {
+      top: 0.9rem;
+      width: 0.9rem;
+    }
+  }
+
   h2 {
-    font-size: 1.5rem;
-    font-weight: 500;
-    color: #383838;
+    color: #363636;
+    font-size: 1.6rem;
+    font-weight: 600;
   }
 }
 
-.catalog-filters__icon {
-  position: relative;
-  width: 1.6rem;
-  height: 1.2rem;
+.catalog-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
 
-  &::before,
-  &::after {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 0.2rem;
-    background: #8e8e8e;
-    border-radius: 999px;
-    content: '';
+  & + .catalog-filter {
+    margin-top: 2rem;
   }
 
-  &::before {
-    top: 0.2rem;
+  h3,
+  strong {
+    color: #373737;
+    font-size: 1.45rem;
+    font-weight: 600;
   }
-
-  &::after {
-    top: 1rem;
-    width: 0.8rem;
-  }
-}
-
-.catalog-filter + .catalog-filter {
-  margin-top: 2.1rem;
 }
 
 .catalog-filter__heading {
@@ -237,547 +272,293 @@ const categoryName = computed(() => {
   align-items: center;
   gap: 0.9rem;
   padding: 0;
-  margin-bottom: 1.5rem;
-  background: transparent;
   border: 0;
-  font-size: 1.35rem;
-  font-weight: 500;
-  color: #383838;
-  cursor: pointer;
-}
+  background: transparent;
 
-.catalog-filter__chevron {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-right: 1.5px solid #8c8c8c;
-  border-bottom: 1.5px solid #8c8c8c;
-  flex-shrink: 0;
-}
-
-.catalog-filter__chevron--up {
-  transform: rotate(225deg);
-}
-
-.catalog-filter__chevron--down {
-  transform: rotate(45deg);
+  i {
+    width: 0.8rem;
+    height: 0.8rem;
+    border-right: 1.5px solid #888;
+    border-bottom: 1.5px solid #888;
+    transform: rotate(45deg);
+  }
 }
 
 .catalog-filter__search {
   position: relative;
   display: flex;
   align-items: center;
-  width: 100%;
-  height: 4rem;
-  margin-bottom: 1.8rem;
-  background: #f4f4f4;
-  border-radius: 1rem;
 
   img {
     position: absolute;
-    left: 1.3rem;
-    width: 1.6rem;
-    opacity: 0.45;
+    left: 1.4rem;
+    width: 1.8rem;
+    opacity: 0.35;
   }
 
   input {
     width: 100%;
-    height: 100%;
-    padding: 0 1.4rem 0 4rem;
-    background: transparent;
+    min-height: 4.6rem;
+    padding: 0 1.6rem 0 4rem;
     border: 0;
-    font-size: 1.2rem;
-    color: #353535;
-
-    &::placeholder {
-      color: #a4a4a4;
-    }
+    border-radius: 1.3rem;
+    background: #f5f5f5;
+    font-size: 1.4rem;
   }
 }
 
 .catalog-filter__check {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  font-size: 1.2rem;
-  color: #5f5f5f;
-  cursor: pointer;
+  gap: 1rem;
 
   input {
     display: none;
   }
-}
 
-.catalog-filter__check + .catalog-filter__check {
-  margin-top: 1rem;
+  span {
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid #c8c8c8;
+    border-radius: 0.4rem;
+    background: #fff;
+  }
+
+  em {
+    font-style: normal;
+    color: #656565;
+    font-size: 1.5rem;
+  }
 }
 
 .catalog-filter__check--all {
-  margin-bottom: 1.3rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid #ededed;
 }
 
-.catalog-filter__box {
-  width: 1.4rem;
-  height: 1.4rem;
-  border: 1px solid #c7c7c7;
-  border-radius: 0.3rem;
-  flex-shrink: 0;
-  background: #fff;
-}
-
-.catalog-filter__divider {
-  width: 100%;
-  height: 1px;
-  margin-bottom: 1.2rem;
-  background: #dddddd;
-}
-
-.catalog-filter__more {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0;
-  margin-top: 1.3rem;
-  background: transparent;
-  border: 0;
-  font-size: 1.2rem;
-  color: $green;
-  cursor: pointer;
-
-  .catalog-filter__chevron {
-    width: 0.7rem;
-    height: 0.7rem;
-    border-color: $green;
-  }
-}
-
-.catalog-filter__price {
+.catalog-filter__price-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.8rem;
+  gap: 1rem;
 
   input {
     width: 100%;
-    height: 4rem;
-    padding: 0 1.2rem;
-    border: 1px solid #d3d3d3;
-    border-radius: 0.9rem;
-    font-size: 1.2rem;
-    color: #444;
-
-    &::placeholder {
-      color: #9b9b9b;
-    }
+    min-height: 4.8rem;
+    padding: 0 1.4rem;
+    border: 1px solid #d7d7d7;
+    border-radius: 1.2rem;
+    font-size: 1.45rem;
+    background: #fff;
   }
 }
 
-.catalog-filter--collapsed {
-  margin-top: 1.9rem;
-
-  .catalog-filter__heading {
-    margin-bottom: 0;
-  }
+.catalog-page__results {
+  padding: 2.4rem;
 }
 
-.catalog-results {
-  padding: 2rem 2rem 3rem;
-}
-
-.catalog-results__top {
-  margin-bottom: 1.8rem;
-}
-
-.catalog-results__fit {
-  margin-bottom: 2rem;
-
-  span {
-    display: block;
-    margin-bottom: 0.8rem;
-    font-size: 1.2rem;
-    color: #8f8f8f;
-  }
-}
-
-.catalog-results__fit-row {
+.catalog-page__fit {
   display: flex;
   align-items: center;
-  gap: 1.4rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.2rem;
+
+  span {
+    color: #838383;
+    font-size: 1.45rem;
+  }
 
   strong {
+    color: #242424;
     font-size: 1.8rem;
     font-weight: 500;
-    color: #1e1e1e;
   }
 
   button {
-    padding: 0;
-    background: transparent;
     border: 0;
-    font-size: 2.4rem;
-    line-height: 1;
-    color: $orange;
+    background: transparent;
+    color: #ff7a00;
+    font-size: 2rem;
     cursor: pointer;
   }
 }
 
-.catalog-results__sort {
+.catalog-page__controls {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1.2rem;
-}
-
-.catalog-sort {
-  display: inline-flex;
   align-items: center;
-  gap: 1rem;
-  min-height: 4rem;
-  padding: 0 1.8rem;
-  background: #edf9ef;
-  border: 0;
-  border-radius: 0.8rem;
-  font-size: 1.6rem;
-  color: $green;
-  cursor: pointer;
+  justify-content: space-between;
+  gap: 1.6rem;
+  margin-bottom: 2.4rem;
 }
 
-.catalog-sort--active {
+.catalog-page__sorts {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.catalog-page__sort,
+.catalog-page__mobile-sort,
+.catalog-page__filter-button {
+  min-height: 4.8rem;
+  border: 0;
+  border-radius: 1.4rem;
+  font-size: 1.45rem;
+}
+
+.catalog-page__sort {
+  padding: 0 1.8rem;
+  background: #e9f8ee;
+  color: $green;
+}
+
+.catalog-page__sort--active {
   background: $linear-green;
   color: #fff;
 }
 
-.catalog-sort__currency {
-  font-size: 1.8rem;
-  line-height: 1;
+.catalog-page__filter-button,
+.catalog-page__mobile-sort {
+  display: none;
 }
 
-.catalog-sort__doc,
-.catalog-sort__clock {
-  position: relative;
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-.catalog-sort__doc {
-  width: 1.6rem;
-  height: 2rem;
-  border: 1.8px solid currentColor;
-  border-radius: 0.35rem;
-
-  &::before,
-  &::after {
-    position: absolute;
-    left: 0.35rem;
-    width: 0.7rem;
-    height: 0.14rem;
-    background: currentColor;
-    content: '';
-  }
-
-  &::before {
-    top: 0.55rem;
-  }
-
-  &::after {
-    top: 0.95rem;
-    width: 1rem;
-  }
-}
-
-.catalog-sort__clock {
-  width: 1.9rem;
-  height: 1.9rem;
-  border: 1.8px solid currentColor;
-  border-radius: 50%;
-
-  &::before,
-  &::after {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    background: currentColor;
-    content: '';
-    transform-origin: top left;
-  }
-
-  &::before {
-    width: 0.14rem;
-    height: 0.55rem;
-    transform: translate(-50%, -80%);
-  }
-
-  &::after {
-    width: 0.45rem;
-    height: 0.14rem;
-    transform: translate(-5%, -50%);
-  }
-}
-
-.catalog-grid {
+.catalog-page__grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 4.2rem 2.4rem;
+  gap: 2.2rem 2rem;
 }
 
-.catalog-card {
-  display: flex;
-  flex-direction: column;
+.catalog-page__mobile-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: none;
+  background: rgba(17, 17, 17, 0.48);
 }
 
-.catalog-card__image {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 1 / 0.82;
-  margin-bottom: 1.4rem;
-  background: #f7f7f7;
-  border-radius: 1.4rem;
-
-  img {
-    width: 71%;
-    object-fit: contain;
-  }
-}
-
-.catalog-card__content {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: flex-start;
-
-  h3 {
-    margin-bottom: 1rem;
-    font-size: 1.7rem;
-    font-weight: 500;
-    line-height: 1.25;
-    color: #202020;
-  }
-
-  p {
-    margin-bottom: 1.2rem;
-    font-size: 1.3rem;
-    color: #757575;
-    line-height: 1.3;
-  }
-
-  strong {
-    margin-bottom: 1.4rem;
-    font-size: 1.9rem;
-    font-weight: 500;
-    color: #1f1f1f;
-  }
-}
-
-.catalog-card__stock {
-  display: inline-block;
-  margin-bottom: 1rem;
-  font-size: 1.3rem;
-  color: #34c759;
-}
-
-.catalog-card__delivery--fast {
-  color: #34c759 !important;
-}
-
-.catalog-card__button {
+.catalog-page__filters--drawer {
   width: 100%;
-  min-height: 4.8rem;
-  background: $linear-green;
-  border: 0;
-  border-radius: 0.8rem;
-  font-size: 1.6rem;
-  color: #fff;
-  cursor: pointer;
+  height: 100%;
+  padding: 2rem 1.6rem;
+  overflow-y: auto;
+  border-radius: 0;
 }
 
-.catalog-pagination {
+.catalog-page__filters-head {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 1.4rem;
-  margin-top: 3.4rem;
-}
+  justify-content: space-between;
+  margin-bottom: 2rem;
 
-.catalog-pagination__page,
-.catalog-pagination__arrow {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 3.2rem;
-  height: 3.2rem;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  font-size: 1.5rem;
-  color: #7f7f7f;
-  cursor: pointer;
-}
-
-.catalog-pagination__page--active {
-  color: $green;
-}
-
-.catalog-pagination__arrow span {
-  width: 0.9rem;
-  height: 0.9rem;
-  border-right: 1.5px solid #8a8a8a;
-  border-bottom: 1.5px solid #8a8a8a;
-  transform: rotate(135deg);
-}
-
-.catalog-pagination__arrow--next span {
-  transform: rotate(-45deg);
-}
-
-@media (max-width: 1600px) {
-  .catalog-results {
-    padding: 1.8rem 1.8rem 2.6rem;
+  h2 {
+    font-size: 2.4rem;
+    font-weight: 700;
   }
 
-  .catalog-grid {
-    gap: 3.4rem 2rem;
-  }
-
-  .catalog-card__content {
-    h3 {
-      font-size: 1.6rem;
-    }
-
-    strong {
-      font-size: 1.8rem;
-    }
+  button {
+    border: 0;
+    background: transparent;
+    font-size: 3.2rem;
+    color: #444;
   }
 }
 
-@media (max-width: 1480px) {
-  .catalog-grid {
+.catalog-filters-fade-enter-active,
+.catalog-filters-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.catalog-filters-fade-enter-from,
+.catalog-filters-fade-leave-to {
+  opacity: 0;
+}
+
+@media (max-width: 1199px) {
+  .catalog-page__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
 
-  .catalog-results__fit-row {
-    strong {
-      font-size: 1.6rem;
+@media (max-width: 991px) {
+  .catalog-page__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-page__filters--desktop {
+    display: none;
+  }
+
+  .catalog-page__mobile-backdrop {
+    display: flex;
+  }
+
+  .catalog-page__filter-button,
+  .catalog-page__mobile-sort {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .catalog-page__filter-button {
+    width: 4.8rem;
+    min-width: 4.8rem;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px #ebebeb;
+
+    img {
+      width: 1.8rem;
     }
   }
 
-  .catalog-sort {
-    min-height: 3.8rem;
-    padding: 0 1.5rem;
-    font-size: 1.4rem;
+  .catalog-page__sorts {
+    display: none;
+  }
+
+  .catalog-page__mobile-sort {
+    padding: 0 1.2rem;
+    margin-left: auto;
+    background: transparent;
+    color: #7d7d7d;
+  }
+
+  .catalog-page__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 767px) {
+  .shop-page {
+    width: calc(100% - 1.6rem);
+  }
+
   .catalog-page {
-    grid-template-columns: 23rem minmax(0, 1fr);
     gap: 1.2rem;
   }
 
-  .catalog-filters {
-    padding: 1.8rem 1.5rem 2rem;
-  }
-
-  .catalog-results {
-    padding: 1.6rem 1.6rem 2.2rem;
-  }
-
-  .catalog-results__top {
-    margin-bottom: 1.5rem;
-  }
-
-  .catalog-results__fit {
-    margin-bottom: 1.6rem;
-  }
-
-  .catalog-results__fit-row {
-    gap: 1rem;
-
-    strong {
-      font-size: 1.45rem;
-    }
-  }
-
-  .catalog-results__sort {
-    gap: 0.8rem;
-  }
-
-  .catalog-sort {
-    gap: 0.8rem;
-    min-height: 3.6rem;
-    padding: 0 1.2rem;
-    font-size: 1.3rem;
-  }
-
-  .catalog-sort__currency {
-    font-size: 1.6rem;
-  }
-
-  .catalog-sort__doc {
-    width: 1.4rem;
-    height: 1.7rem;
-  }
-
-  .catalog-sort__clock {
-    width: 1.6rem;
-    height: 1.6rem;
-  }
-
-  .catalog-grid {
-    gap: 3rem 1.6rem;
-  }
-
-  .catalog-card__image {
-    margin-bottom: 1.1rem;
-    border-radius: 1.1rem;
-  }
-
-  .catalog-card__content {
-    h3 {
-      margin-bottom: 0.8rem;
-      font-size: 1.45rem;
-    }
-
-    p {
-      margin-bottom: 1rem;
-      font-size: 1.2rem;
-    }
-
-    strong {
-      margin-bottom: 1.2rem;
-      font-size: 1.7rem;
-    }
-  }
-
-  .catalog-card__stock {
-    margin-bottom: 0.8rem;
+  .catalog-page__breadcrumbs {
     font-size: 1.2rem;
   }
 
-  .catalog-card__button {
-    min-height: 4.2rem;
-    font-size: 1.4rem;
+  .catalog-page__results {
+    padding: 0;
+    background: transparent;
   }
 
-  .catalog-pagination {
-    margin-top: 2.8rem;
-  }
-}
-
-@media (max-width: 1120px) {
-  .catalog-page {
-    grid-template-columns: 21rem minmax(0, 1fr);
+  .catalog-page__fit {
+    display: none;
   }
 
-  .catalog-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .catalog-page__controls {
+    margin-bottom: 1.6rem;
   }
 
-  .catalog-results__fit-row {
-    align-items: flex-start;
-    flex-wrap: wrap;
+  .catalog-page__mobile-sort {
+    min-height: auto;
+    font-size: 1.25rem;
   }
 
-  .catalog-sort {
-    flex: 1 1 auto;
-    justify-content: center;
+  .catalog-page__grid {
+    gap: 2rem 1.2rem;
   }
 }
 </style>

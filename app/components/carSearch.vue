@@ -1,109 +1,99 @@
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import type { Ref } from 'vue'
+﻿<script setup lang="ts">
+type SearchMode = 'vin' | 'params'
 
-type ActiveTab = 'vin' | 'params'
-
-// Активная вкладка
-const activeTab = ref<ActiveTab>('vin')
-
-// Ссылки на элементы
-const vinRef = ref<HTMLParagraphElement | null>(null)
-const paramsRef = ref<HTMLParagraphElement | null>(null)
-
-// Стили слайдера (тип выводится автоматически)
-const sliderStyle = ref({
-  left: '0px',
-  width: '0px'
-})
-
-const updateSlider = () => {
-  const activeElement = activeTab.value === 'vin' ? vinRef.value : paramsRef.value
-  if (activeElement) {
-    const { offsetLeft, offsetWidth } = activeElement
-    sliderStyle.value = {
-      left: `${offsetLeft - 20}px`,
-      width: `${offsetWidth + 40}px`
-    }
-  }
-}
-
-const setActive = (tab: ActiveTab) => {
-  activeTab.value = tab
-  updateSlider()
-}
-
-onMounted(() => {
-  updateSlider()
-})
+const activeMode = ref<SearchMode>('params')
 </script>
+
 <template>
-    <div>
-        <div class="car-search__block">
-            <h1 class="car-search__header">Поиск по авто</h1>
-            <div class="car-search__wrapper">
-                <p ref="vinRef" :class="{ active: activeTab === 'vin' }" @click="setActive('vin')">
-                    По VIN
-                </p>
-                <p ref="paramsRef" :class="{ active: activeTab === 'params' }" @click="setActive('params')">
-                    По параметрам
-                </p>
-                <div class="green-slider" :style="{
-                    left: sliderStyle.left,
-                    width: sliderStyle.width
-                }"></div>
-            </div>
-            <Search placeholder="VIN / FRAME" search-button-query="Найти"></Search>
-        </div>
+  <section class="car-search-card">
+    <header class="car-search-card__header">
+      <h2>Поиск авто</h2>
+    </header>
+
+    <div class="car-search-card__tabs" role="tablist" aria-label="Способ поиска автомобиля">
+      <button
+        type="button"
+        class="car-search-card__tab"
+        :class="{ 'car-search-card__tab--active': activeMode === 'vin' }"
+        @click="activeMode = 'vin'"
+      >
+        По VIN
+      </button>
+      <button
+        type="button"
+        class="car-search-card__tab"
+        :class="{ 'car-search-card__tab--active': activeMode === 'params' }"
+        @click="activeMode = 'params'"
+      >
+        По параметрам
+      </button>
     </div>
+
+    <Search placeholder="VIN / FRAME" action-label="Найти" />
+  </section>
 </template>
 
-
 <style scoped lang="scss">
-.car-search__block {
-    display: flex;
-    flex-direction: column;
-    gap: 2.2rem;
-    background-color: #fff;
-    padding: 2.2rem;
-    width: 40%;
-    border-radius: $radius-xl;
-
-    .car-search__wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-        background-color: #1b1b1b;
-        padding-left: 2.2rem;
-        padding-right: 2.2rem;
-        height: $header-height;
-        width: 240px;
-        border-radius: $radius-md;
-        justify-content: space-between;
-
-        p {
-            font-size: $font-size-p;
-            color: #fff;
-            z-index: 1;
-            cursor: pointer;
-            transition: color 0.2s;
-
-            &.active {
-                color: #fff; // можно изменить цвет активного текста, если нужно
-            }
-        }
-    }
-
+.car-search-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2.2rem;
+  width: min(100%, 58rem);
+  padding: 2.6rem;
+  background: #fff;
+  border-radius: 2.4rem;
 }
 
-.green-slider {
-    position: absolute;
-    height: 100%;
-    background-color: #18960a;
-    top: 0;
-    left: 0;
-    z-index: 0;
-    border-radius: $radius-md;
-    transition: left 0.3s ease, width 0.3s ease;
+.car-search-card__header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2f2f2f;
+}
+
+.car-search-card__tabs {
+  display: inline-grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  width: fit-content;
+  border-radius: 1.4rem;
+  background: #1d1d1d;
+}
+
+.car-search-card__tab {
+  min-width: 14rem;
+  min-height: 4.6rem;
+  padding: 0 2rem;
+  border: 0;
+  border-radius: 1.1rem;
+  background: transparent;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.car-search-card__tab--active {
+  background: $green;
+}
+
+@media (max-width: 767px) {
+  .car-search-card {
+    width: 100%;
+    padding: 2rem 1.6rem;
+    border-radius: 2rem;
+    gap: 1.8rem;
+  }
+
+  .car-search-card__header h2 {
+    font-size: 1.8rem;
+  }
+
+  .car-search-card__tab {
+    min-width: 12.8rem;
+    min-height: 4.2rem;
+    padding: 0 1.2rem;
+    font-size: 1.45rem;
+  }
 }
 </style>
