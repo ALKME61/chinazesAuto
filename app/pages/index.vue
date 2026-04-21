@@ -1,6 +1,10 @@
 ﻿<script setup lang="ts">
 definePageMeta({ layout: 'default' })
-
+useHead({
+  meta: [
+    { name: 'theme-color', content: '#ffffff' },
+  ]
+})
 const categories = [
   { title: 'Оригинальный каталог', image: '/Categories/originalCatalogue.png', to: '/catalogs/original' },
   { title: 'Запчасти для ТО', image: '/Categories/partsForTO.png', to: '/catalogs/TO' },
