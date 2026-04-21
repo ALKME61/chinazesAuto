@@ -43,7 +43,7 @@ const searchValue = ref('')
 <style scoped lang="scss">
 .mobile-store-header {
   background-color: white;
-  padding-top: env(safe-area-inset-top);
+  padding-top: 300px;
 }
 
 .mobile-store-header__shell {
