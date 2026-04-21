@@ -109,10 +109,10 @@ function updateValue(event: Event) {
     min-height: 4.6rem;
 
     input {
-      min-height: 4.6rem;
+      min-height: 4.4rem;
       padding-left: 1.6rem;
       padding-right: 6.7rem;
-      border-radius: 1.4rem;
+      border-radius: $spacing-md;
       font-size: 1.4rem;
     }
   }
@@ -120,10 +120,10 @@ function updateValue(event: Event) {
   .shop-search__button {
     top: 0.4rem;
     right: 0.4rem;
-    width: 5.4rem;
+    width: 8rem;
     min-width: 5.4rem;
-    height: 3.8rem;
-    border-radius: 1.2rem;
+    height: 4.4rem;
+    border-radius: $spacing-md;
 
     img {
       width: 1.8rem;

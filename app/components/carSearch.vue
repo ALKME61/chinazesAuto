@@ -55,16 +55,16 @@ const activeMode = ref<SearchMode>('params')
   grid-template-columns: repeat(2, 1fr);
   gap: 0;
   width: fit-content;
-  border-radius: 1.4rem;
+  border-radius: $radius-md;
   background: #1d1d1d;
 }
 
 .car-search-card__tab {
   min-width: 14rem;
-  min-height: 4.6rem;
+  min-height: 5rem;
   padding: 0 2rem;
   border: 0;
-  border-radius: 1.1rem;
+  border-radius: $radius-md;
   background: transparent;
   color: #fff;
   font-size: 1.5rem;
@@ -91,7 +91,7 @@ const activeMode = ref<SearchMode>('params')
 
   .car-search-card__tab {
     min-width: 12.8rem;
-    min-height: 4.2rem;
+    min-height: 5rem;
     padding: 0 1.2rem;
     font-size: 1.45rem;
   }

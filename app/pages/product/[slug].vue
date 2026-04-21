@@ -16,7 +16,7 @@ const product = {
   reviewer: 'Николай',
   reviewerText: 'Аккумулятор топовый вообще, но важно проверить размеры перед покупкой.',
   delivery: 'Послезавтра',
-  images: ['/productExample.png', '/productExample.png', '/productExample.png'],
+  images: ['/productExample.png', '/money.png', '/productExample.png'],
 }
 
 const characteristics = [
@@ -65,7 +65,7 @@ const slugTitle = computed(() => {
         </div>
 
         <div class="product-page__gallery-dots">
-          <button
+          <div
             v-for="(_, index) in product.images"
             :key="index"
             type="button"
@@ -263,11 +263,10 @@ const slugTitle = computed(() => {
 .product-page__gallery-dots {
   display: flex;
   justify-content: center;
-  gap: 0.8rem;
-
-  button {
-    width: 1rem;
-    height: 1rem;
+  gap: 4px;
+  div {
+    width: 8px;
+    height: 8px;
     border: 0;
     border-radius: 50%;
     background: #d9d9d9;
@@ -623,7 +622,7 @@ const slugTitle = computed(() => {
     gap: 0.6rem;
   }
 
-  .product-page__gallery-dots button {
+  .product-page__gallery-dots div {
     width: 0.8rem;
     height: 0.8rem;
   }
