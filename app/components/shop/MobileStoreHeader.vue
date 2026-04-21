@@ -10,7 +10,8 @@ const searchValue = ref('')
   <header class="mobile-store-header">
     <div class="mobile-store-header__shell">
       <div class="mobile-store-header__top">
-        <button type="button" class="mobile-store-header__burger" aria-label="Открыть каталог" @click="emit('toggleCatalog')">
+        <button type="button" class="mobile-store-header__burger" aria-label="Открыть каталог"
+          @click="emit('toggleCatalog')">
           <span />
           <span />
           <span />
@@ -40,6 +41,11 @@ const searchValue = ref('')
 </template>
 
 <style scoped lang="scss">
+.mobile-store-header {
+  background-color: white;
+  padding-top: env(safe-area-inset-top);
+}
+
 .mobile-store-header__shell {
   margin: 0 auto;
   padding: 1.2rem 1.6rem 1.1rem;
