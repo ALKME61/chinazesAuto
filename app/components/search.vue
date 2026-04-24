@@ -119,10 +119,10 @@ function updateValue(event: Event) {
 
   .shop-search__button {
     top: 0.4rem;
-    right: 0.4rem;
+    right: 0.2rem;
     width: 8rem;
     min-width: 5.4rem;
-    height: 4.4rem;
+    height: 3.8rem;
     border-radius: $spacing-md;
 
     img {
@@ -131,11 +131,12 @@ function updateValue(event: Event) {
     }
   }
 
-  .shop-search__button--text {
+  .shop-search__button__text {
     width: 9.6rem;
     min-width: 9.6rem;
     padding: 0 1.6rem;
     font-size: 1.5rem;
+    height: 4.4rem;;
   }
 }
 </style>

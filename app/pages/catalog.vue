@@ -148,7 +148,7 @@ watch(
 
         <div class="catalog-page__controls">
           <button type="button" class="catalog-page__filter-button" @click="showFilters = true">
-            <NuxtImg src="/icons/burger.svg" alt="" />
+            <NuxtImg src="/icons/filterIcon.svg" alt="" />
           </button>
 
           <div class="catalog-page__sorts">
@@ -170,6 +170,7 @@ watch(
             :price="product.price"
             :image="product.image"
             :to="product.to"
+            :show-button="false"
           />
         </div>
       </section>
@@ -483,7 +484,9 @@ watch(
   .catalog-page__layout {
     grid-template-columns: 1fr;
   }
-
+  .catalog-page__results {
+    background-color: #fff;
+  }
   .catalog-page__filters--desktop {
     display: none;
   }
@@ -506,7 +509,7 @@ watch(
     box-shadow: inset 0 0 0 1px #ebebeb;
 
     img {
-      width: 1.8rem;
+      width: 2.8rem;
     }
   }
 
@@ -527,6 +530,9 @@ watch(
 }
 
 @media (max-width: 767px) {
+  .catalog-page__results {
+    background-color: #fff;
+  }
   .shop-page {
     width: calc(100% - 1.6rem);
   }
@@ -539,10 +545,6 @@ watch(
     font-size: 1.2rem;
   }
 
-  .catalog-page__results {
-    padding: 0;
-    background: transparent;
-  }
 
   .catalog-page__fit {
     display: none;

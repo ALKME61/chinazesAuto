@@ -12,6 +12,11 @@ export default defineNuxtConfig({
 
   // Глобальные переменные для всех компонентов (без отдельного HTTP-запроса)
   vite: {
+    server: {
+      allowedHosts: [
+        'chinazes-auto.shares.zrok.io'
+      ]
+    },
     css: {
       preprocessorOptions: {
         scss: {

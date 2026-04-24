@@ -1,6 +1,6 @@
 ﻿<script setup lang="ts">
 import ShopProductCard from '~/components/shop/ShopProductCard.vue'
-
+import Button from '~/components/shared/ui/Button/Button.vue'
 definePageMeta({ layout: 'default' })
 
 const route = useRoute()
@@ -117,10 +117,7 @@ const slugTitle = computed(() => {
             </div>
           </div>
 
-          <button type="button" class="product-page__cart-button">
-            <span>Добавить в корзину</span>
-            <small>{{ product.delivery }}</small>
-          </button>
+          <Button :subtext="product.delivery">Добавить в корзину</Button>
         </div>
       </aside>
     </section>
@@ -431,28 +428,7 @@ const slugTitle = computed(() => {
   letter-spacing: 0.2rem;
 }
 
-.product-page__cart-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
-  min-height: 7rem;
-  border: 0;
-  border-radius: 1.8rem;
-  background: $green;
-  color: #fff;
 
-  span {
-    font-size: 2rem;
-    font-weight: 600;
-  }
-
-  small {
-    font-size: 1.5rem;
-    opacity: 0.9;
-  }
-}
 
 .product-page__details-grid {
   display: grid;

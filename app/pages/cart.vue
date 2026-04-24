@@ -1,4 +1,5 @@
 ﻿<script setup lang="ts">
+import Button from '~/components/shared/ui/Button/Button.vue'
 const cartItems = ref([
   {
     id: 1,
@@ -137,10 +138,7 @@ function removeItem(id: number) {
           <strong>14400₽</strong>
         </div>
 
-        <button type="button" class="cart-page__submit">
-          <span>Перейти к оформлению</span>
-          <small>{{ formatPrice(totalPrice) }} · {{ selectedCount }} ед</small>
-        </button>
+        <Button :subtext="`${formatPrice(totalPrice)} · ${selectedCount} ед`">Перейти к оформлению</Button>
       </aside>
     </div>
   </main>

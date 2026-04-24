@@ -15,6 +15,8 @@ const categories = [
   { title: 'Масла и техжидкости', image: '/Categories/oil.png', to: '/catalogs' },
   { title: 'Инструменты', image: '/Categories/tools.png', to: '/catalogs' },
 ]
+
+
 </script>
 
 <template>

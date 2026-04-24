@@ -1,19 +1,24 @@
 <script setup lang="ts">
+import Search from '~/components/search.vue'
 import Icon from '~/components/shared/ui/icons/Icon.vue'
+import { helpPhone, helpPhoneHref } from '../../../shared/config/navigation'
+
 const emit = defineEmits<{
   (e: 'toggleCatalog'): void
 }>()
-
-const searchValue = ref('')
 </script>
 
 <template>
   <header class="mobile-store-header">
     <div class="mobile-store-header__shell">
       <div class="mobile-store-header__top">
-        <button type="button" class="mobile-store-header__burger" aria-label="Открыть каталог"
-          @click="emit('toggleCatalog')">
-          <Icon name="burger-mobile" width="32"/>
+        <button
+          type="button"
+          class="mobile-store-header__burger"
+          aria-label="Открыть каталог"
+          @click="emit('toggleCatalog')"
+        >
+          <Icon name="burger-mobile" width="32" height="32" />
         </button>
 
         <NuxtLink to="/" class="mobile-store-header__logo" aria-label="На главную">
@@ -21,17 +26,19 @@ const searchValue = ref('')
         </NuxtLink>
 
         <NuxtLink to="/profile" class="mobile-store-header__profile" aria-label="Профиль">
-          <NuxtImg src="/icons/Login.svg" alt="" />
+          <Icon name="Login" width="30" height="30" />
         </NuxtLink>
       </div>
 
-      <search />
+      <div class="mobile-store-header__search">
+        <Search />
+      </div>
 
       <div class="mobile-store-header__info">
-        <a href="tel:+71234567890" class="mobile-store-header__phone">8 (123) 456-78-90</a>
+        <a :href="helpPhoneHref" class="mobile-store-header__phone">{{ helpPhone }}</a>
 
         <button type="button" class="mobile-store-header__address">
-          <NuxtImg src="/icons/geo-pvz.svg" alt="" />
+          <Icon name="geo-pvz" width="19" height="24" />
           <span>Адреса ПВЗ</span>
         </button>
       </div>
@@ -41,6 +48,7 @@ const searchValue = ref('')
 
 <style scoped lang="scss">
 .mobile-store-header {
+  display: none;
   background-color: white;
   padding-top: env(safe-area-inset-top);
 }
@@ -54,22 +62,20 @@ const searchValue = ref('')
 
 .mobile-store-header__top {
   display: grid;
-  grid-template-columns: 2.8rem minmax(0, 1fr) 3.2rem;
+  grid-template-columns: 3.2rem minmax(0, 1fr) 3.2rem;
   align-items: center;
   gap: 1.4rem;
-  margin-bottom: 1.2rem;
 }
 
 .mobile-store-header__burger {
   display: inline-flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 0.45rem;
+  width: 3.2rem;
+  height: 3.2rem;
   padding: 0;
   border: 0;
   background: transparent;
-  width: 3.2rem;
-  height: 3.2rem;
 }
 
 .mobile-store-header__logo {
@@ -89,54 +95,10 @@ const searchValue = ref('')
   justify-content: center;
   width: 3.2rem;
   height: 3.2rem;
-
-  img {
-    width: 3rem;
-    height: 3rem;
-  }
 }
 
 .mobile-store-header__search {
-  position: relative;
-  display: block;
-  margin-top: 1.8rem;
-
-  input {
-    width: 100%;
-    height: 4.8rem;
-    padding: 0 10.6rem 0 2.2rem;
-    border: 0;
-    border-radius: $radius-md ;
-    background: #f5f5f5;
-    color: #565656;
-    font-size: 1.7rem;
-    font-weight: 400;
-
-    &::placeholder {
-      color: #808080;
-    }
-  }
-}
-
-.mobile-store-header__search-button {
-  position: absolute;
-  top: 0.4rem;
-  right: 0.4rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 7.3rem;
-  height: 4.0rem;
-  padding: 0;
-  border: 0;
-  border-radius: 0.6rem;
-  background: $green;
-  cursor: pointer;
-
-  img {
-    width: 2.4rem;
-    height: 2.4rem;
-  }
+  margin-top: 1.2rem;
 }
 
 .mobile-store-header__info {
@@ -144,7 +106,7 @@ const searchValue = ref('')
   align-items: center;
   justify-content: space-between;
   gap: 1.4rem;
-  margin-top: 2rem;
+  margin-top: 1.8rem;
 }
 
 .mobile-store-header__phone {
@@ -164,10 +126,11 @@ const searchValue = ref('')
   font-size: 1.6rem;
   line-height: 1.2;
   cursor: pointer;
+}
 
-  img {
-    width: 1.9rem;
-    height: 2.4rem;
+@media (max-width: 991px) {
+  .mobile-store-header {
+    display: block;
   }
 }
 
@@ -178,37 +141,12 @@ const searchValue = ref('')
   }
 
   .mobile-store-header__top {
-    grid-template-columns: 2.6rem minmax(0, 1fr) 2.8rem;
+    grid-template-columns: 2.8rem minmax(0, 1fr) 2.8rem;
     gap: 1.2rem;
   }
 
   .mobile-store-header__logo img {
     max-width: 26rem;
-  }
-
-  .mobile-store-header__search {
-    margin-top: 1.6rem;
-
-    input {
-      height: 6.6rem;
-      padding-left: 1.8rem;
-      padding-right: 8.8rem;
-      border-radius: 1.8rem;
-      font-size: 1.5rem;
-    }
-  }
-
-  .mobile-store-header__search-button {
-    top: 0.7rem;
-    right: 0.7rem;
-    width: 6rem;
-    height: 5.2rem;
-    border-radius: 1.7rem;
-
-    img {
-      width: 2.1rem;
-      height: 2.1rem;
-    }
   }
 
   .mobile-store-header__info {
@@ -222,11 +160,6 @@ const searchValue = ref('')
   .mobile-store-header__address {
     gap: 0.55rem;
     font-size: 1.4rem;
-
-    img {
-      width: 1.6rem;
-      height: 2rem;
-    }
   }
 }
 </style>
