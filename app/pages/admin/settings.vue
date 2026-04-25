@@ -1,6 +1,6 @@
 ﻿<script setup lang="ts">
-import MarkupTierEditor from '~/components/admin/MarkupTierEditor.vue'
-import SettingsFeatureCard from '~/components/admin/SettingsFeatureCard.vue'
+import MarkupTierEditor from '~/components/admin/markupTierEditor/ui/MarkupTierEditor.vue'
+import SettingsFeatureCard from '~/components/admin/settingsFeatureCard/ui/SettingsFeatureCard.vue'
 definePageMeta({
   layout: 'admin',
 })

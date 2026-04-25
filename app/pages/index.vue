@@ -1,6 +1,6 @@
 ﻿<script setup lang="ts">
-import Categories from '~/components/shop/widgets/categories/ui/Categories.vue';
-import HowToOrder from '~/components/shop/widgets/howToOrder/HowToOrder.vue';
+import Categories from '~/components/shop/categories/ui/Categories.vue';
+import HowToOrder from '~/components/shop/howToOrder/ui/HowToOrder.vue';
 
 definePageMeta({ layout: 'default' })
 useHead({

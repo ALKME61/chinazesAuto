@@ -1,6 +1,6 @@
 ﻿<script setup lang="ts">
-import ProfileLinks from '~/components/shop/features/profileLinks/ProfileLinks.vue'
-import { profileLinks } from '~/components/shop/features/profileLinks/profileLinksTypes'
+import ProfileLinks from '~/components/shop/profileLinks/ui/ProfileLinks.vue'
+import { profileLinks } from '~/components/shop/profileLinks/types/profileLinksTypes'
 
 const route = useRoute()
 

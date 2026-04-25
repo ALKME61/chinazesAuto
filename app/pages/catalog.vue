@@ -1,5 +1,5 @@
 ﻿<script setup lang="ts">
-import ShopProductCard from '~/components/shop/ShopProductCard.vue'
+import ShopProductCard from '~/components/shop/productCard/ui/ShopProductCard.vue'
 
 const route = useRoute()
 const showFilters = ref(false)

@@ -1,5 +1,5 @@
 ﻿<script setup lang="ts">
-import Button from '~/components/shared/ui/Button/ui/Button.vue'
+import Button from '~/shared/ui-kit/Button/Button.vue'
 const cartItems = ref([
   {
     id: 1,

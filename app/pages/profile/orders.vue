@@ -1,5 +1,5 @@
 ﻿<script setup lang="ts">
-import DesktopOrdersView from '~/components/shop/DesktopOrdersView.vue'
+import DesktopOrdersView from '~/components/shop/desktopOrders/ui/DesktopOrdersView.vue'
 
 const showBarcode = ref(false)
 

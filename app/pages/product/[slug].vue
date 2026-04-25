@@ -1,6 +1,6 @@
 ﻿<script setup lang="ts">
-import ShopProductCard from '~/components/shop/ShopProductCard.vue'
-import Button from '~/components/shared/ui/Button/ui/Button.vue'
+import ShopProductCard from '~/components/shop/productCard/ui/ShopProductCard.vue'
+import Button from '~/shared/ui-kit/Button/Button.vue'
 definePageMeta({ layout: 'default' })
 
 const route = useRoute()
