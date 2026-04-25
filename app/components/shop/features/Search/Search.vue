@@ -1,17 +1,11 @@
 ﻿<script setup lang="ts">
-const props = withDefaults(
-  defineProps<{
+const props = defineProps<{
     placeholder?: string
     actionLabel?: string
     modelValue?: string
     ariaLabel?: string
-  }>(),
-  {
-    placeholder: 'Поиск по VIN, или артикулу',
-    modelValue: '',
-    ariaLabel: 'Поиск',
-  },
-)
+  }>()
+
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void

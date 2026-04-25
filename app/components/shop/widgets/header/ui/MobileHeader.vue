@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Search from '~/components/search.vue'
+import Search from '~/components/shop/features/Search/Search.vue'
 import Icon from '~/components/shared/ui/icons/Icon.vue'
-import { helpPhone, helpPhoneHref } from '../../../shared/config/navigation'
+import { helpPhone, helpPhoneHref } from '../../../../../config/navigation'
 
 const emit = defineEmits<{
   (e: 'toggleCatalog'): void
@@ -31,7 +31,7 @@ const emit = defineEmits<{
       </div>
 
       <div class="mobile-store-header__search">
-        <Search />
+        <Search placeholder="Поиск по VIN, или артикулю"/>
       </div>
 
       <div class="mobile-store-header__info">

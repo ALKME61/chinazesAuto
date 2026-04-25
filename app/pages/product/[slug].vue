@@ -1,6 +1,6 @@
 ﻿<script setup lang="ts">
 import ShopProductCard from '~/components/shop/ShopProductCard.vue'
-import Button from '~/components/shared/ui/Button/Button.vue'
+import Button from '~/components/shared/ui/Button/ui/Button.vue'
 definePageMeta({ layout: 'default' })
 
 const route = useRoute()
@@ -174,10 +174,6 @@ const slugTitle = computed(() => {
       </div>
     </section>
 
-    <button type="button" class="product-page__mobile-sticky-cart">
-      <span>Добавить в корзину</span>
-      <small>{{ product.delivery }}</small>
-    </button>
   </main>
 </template>
 

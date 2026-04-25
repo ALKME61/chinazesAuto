@@ -1,4 +1,5 @@
 ﻿<script setup lang="ts">
+import CarSearch from '~/components/shop/features/CarSearch/CarSearch.vue';
 definePageMeta({ layout: 'default' })
 </script>
 

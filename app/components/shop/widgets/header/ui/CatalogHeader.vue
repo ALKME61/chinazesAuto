@@ -5,7 +5,7 @@ import {
   helpPhone,
   helpPhoneHref,
   profileLinks,
-} from '../../../shared/config/navigation'
+} from '../../../../../config/navigation'
 
 const props = defineProps<{
   show: boolean

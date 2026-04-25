@@ -1,4 +1,5 @@
 ﻿<script setup lang="ts">
+import Search from '../Search/Search.vue';
 type SearchMode = 'vin' | 'params'
 
 const activeMode = ref<SearchMode>('params')

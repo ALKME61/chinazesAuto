@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import Search from '~/components/search.vue'
+import Search from '~/components/shop/features/Search/Search.vue'
 import Icon from '~/components/shared/ui/icons/Icon.vue'
 import {
   helpPhone,
   helpPhoneHref,
   quickActionLinks,
   supportLinks,
-} from '../../../shared/config/navigation'
+} from '../../../../../config/navigation'
 
 const emit = defineEmits<{
   (e: 'toggleCatalog'): void
@@ -29,7 +29,7 @@ const emit = defineEmits<{
         </div>
 
         <div class="shop-header__search-wrap">
-          <Search />
+          <Search placeholder="Поиск по VIN, или артикулу"/>
         </div>
 
         <nav class="shop-header__actions" aria-label="Быстрые действия магазина">

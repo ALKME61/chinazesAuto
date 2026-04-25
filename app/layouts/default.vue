@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import LayoutFooter from '~/components/entities/footer/ui/LayoutFooter.vue'
+import LayoutFooter from '~/components/shop/widgets/footer/ui/LayoutFooter.vue'
 import MobileProfileNav from '~/components/shop/MobileProfileNav.vue'
-import HeaderWidget from '~/components/widgets/header/Header.vue'
+import HeaderWidget from '~/components/shop/widgets/header/Header.vue'
 import {
   categoryLinks,
   legalLinks,
   profileLinks,
   searchLinks,
   supportContactLinks,
-} from '~/components/shared/config/navigation'
+} from '~/config/navigation'
 
 const route = useRoute()
 

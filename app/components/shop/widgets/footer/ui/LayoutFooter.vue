@@ -5,7 +5,7 @@ import {
   profileLinks,
   searchLinks,
   supportContactLinks,
-} from '~/components/shared/config/navigation'
+} from '~/config/navigation'
 </script>
 <template>
     <footer class="shop-footer">
