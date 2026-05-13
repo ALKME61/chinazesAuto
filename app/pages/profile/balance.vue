@@ -1,4 +1,9 @@
 ﻿<script setup lang="ts">
+import auth from '~/middleware/auth'
+
+definePageMeta({
+  middleware: auth
+})
 const operations = [
   { type: 'Пополнение баланса', amount: '+3000₽', positive: true, accent: '', meta: '' },
   { type: 'Оплата', amount: '-1500₽', positive: false, accent: '143543', meta: 'id заказа', date: '12.01.2026' },

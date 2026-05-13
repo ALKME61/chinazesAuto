@@ -44,30 +44,36 @@ const orderRows = [
 
     <div class="admin-dashboard__top">
       <div class="admin-dashboard__stats">
-        <AdminMetricCard title="Всего заказов" value="13" icon="orders" class="admin-dashboard__card admin-dashboard__card--total">
+        <AdminMetricCard title="Всего заказов" value="13" icon="orders"
+          class="admin-dashboard__card admin-dashboard__card--total">
           <div class="admin-dashboard__trend">
             <span>↑ 24%</span>
             <span>С прошлого месяца</span>
           </div>
         </AdminMetricCard>
 
-        <AdminMetricCard title="Вопросы по заказам" value="3" accent class="admin-dashboard__card admin-dashboard__card--question">
+        <AdminMetricCard title="Вопросы по заказам" value="3" accent
+          class="admin-dashboard__card admin-dashboard__card--question">
           Ответить как можно быстрее
         </AdminMetricCard>
 
-        <AdminMetricCard title="Новые заказы" value="4" icon="clipboard" class="admin-dashboard__card admin-dashboard__card--new">
+        <AdminMetricCard title="Новые заказы" value="4" icon="newOrders"
+          class="admin-dashboard__card admin-dashboard__card--new">
           Требуется обслужить
         </AdminMetricCard>
 
-        <AdminMetricCard title="В обработке" value="3" icon="clipboard" class="admin-dashboard__card admin-dashboard__card--processing">
+        <AdminMetricCard title="В обработке" value="3" icon="inProgress"
+          class="admin-dashboard__card admin-dashboard__card--processing">
           Контролируем
         </AdminMetricCard>
 
-        <AdminMetricCard title="Отгружен" value="3" icon="package" class="admin-dashboard__card admin-dashboard__card--shipped">
+        <AdminMetricCard title="Отгружен" value="3" icon="shippedOrders"
+          class="admin-dashboard__card admin-dashboard__card--shipped">
           Почти всё
         </AdminMetricCard>
 
-        <AdminMetricCard title="Отменён" value="2" icon="close" class="admin-dashboard__card admin-dashboard__card--cancelled">
+        <AdminMetricCard title="Отменён" value="2" icon="close"
+          class="admin-dashboard__card admin-dashboard__card--cancelled">
           Что-то пошло не так
         </AdminMetricCard>
 
@@ -316,11 +322,9 @@ const orderRows = [
   width: 13.8rem;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: conic-gradient(
-    #b9e8c4 0 60%,
-    #18b536 60% 75%,
-    #68d27f 75% 100%
-  );
+  background: conic-gradient(#b9e8c4 0 60%,
+      #18b536 60% 75%,
+      #68d27f 75% 100%);
   transform: rotate(-90deg);
 }
 
@@ -470,5 +474,14 @@ const orderRows = [
 .admin-table__action--export {
   padding: 0 1.6rem;
   font-size: 1.5rem;
+}
+
+@media(max-width: 1400px) {
+  .admin-dashboard__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.42fr) minmax(34rem, 0.98fr);
+    gap: 1.4rem;
+    margin-bottom: 1.4rem;
+  }
 }
 </style>

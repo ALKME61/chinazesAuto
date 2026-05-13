@@ -5,6 +5,7 @@ import HeaderWidget from '~/components/shop/header/ui/Header.vue'
 
 const route = useRoute()
 
+
 const isProfileRoute = computed(() => route.path.startsWith('/profile'))
 </script>
 

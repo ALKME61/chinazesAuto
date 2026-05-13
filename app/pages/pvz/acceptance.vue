@@ -1,5 +1,5 @@
 ﻿<script setup lang="ts">
-import PvzIcon from '~/components/pvz/PvzIcon.vue'
+import Icon from '~/components/shared/ui/Icons/Icon.vue'
 import PvzProductCard from '~/components/pvz/PvzProductCard.vue'
 import PvzScanHero from '~/components/pvz/PvzScanHero.vue'
 
@@ -129,21 +129,15 @@ const journalItems = [
               <button type="button">Разобрать</button>
             </article>
           </div>
-
-          <div class="pvz-page__tool-row">
-            <button type="button" class="pvz-page__primary">Сканировать следующую коробку</button>
-            <button type="button" class="pvz-page__secondary">Напечатать QR для товаров</button>
-          </div>
         </section>
 
         <section class="pvz-page__panel">
           <div class="pvz-page__panel-head">
             <h2>Товар потерялся</h2>
-            <span>Каркас под будущую логику для поиска и фиксации расхождений.</span>
           </div>
 
           <div class="pvz-page__lost-card">
-            <PvzIcon name="warning" :size="24" />
+            <Icon name="warningIcon" :size="24" />
             <p>Если товар не найден в коробке или потерялся после сканирования, оператор оставляет запись в журнале и отмечает статус для дальнейшего разбора.</p>
           </div>
         </section>
@@ -151,8 +145,7 @@ const journalItems = [
 
       <PvzScanHero
         title="Отсканируйте QR-код коробки"
-        subtitle="После сканирования коробка попадает в неразобранные. Её можно закрыть и разобрать позже."
-        caption="Следующий шаг: разложить товары и напечатать уникальные QR-коды, привязанные к пользователю."
+        subtitle="Следующий шаг: разложить товары и напечатать уникальные QR-коды, привязанные к пользователю"
         icon="box"
       />
     </template>
@@ -162,7 +155,6 @@ const journalItems = [
         <div class="pvz-page__workspace-head">
           <div>
             <h2>Приёмка от поставщика</h2>
-            <p>Сначала выбираем поставщика, затем сканируем штрихкоды запчастей. Если одинаковую позицию заказали несколько пользователей, оператор сверяет заказ с накладной и назначает товар нужному клиенту.</p>
           </div>
 
           <div class="pvz-page__summary">
@@ -186,7 +178,7 @@ const journalItems = [
             <input type="text" placeholder="Например, 4607025331241">
           </label>
 
-          <button type="button" class="pvz-page__primary">Добавить после скана</button>
+          <button type="button" class="pvz-page__primary">Добавить</button>
           <button type="button" class="pvz-page__secondary">Напечатать наши QR-коды</button>
         </div>
 
@@ -204,7 +196,7 @@ const journalItems = [
               <span>Совпадений на проверке</span>
               <strong>1</strong>
             </div>
-            <button type="button" class="pvz-page__primary">Подтвердить разбор поставки</button>
+            <button type="button" class="pvz-page__primary">Подтвердить</button>
           </aside>
 
           <div class="pvz-page__products">
@@ -327,7 +319,6 @@ const journalItems = [
   padding: 2rem;
   background: #fff;
   border-radius: 2.4rem;
-  box-shadow: 0 18px 40px rgba(20, 24, 26, 0.04);
 }
 
 .pvz-page__workspace--match {

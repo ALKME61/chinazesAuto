@@ -26,14 +26,12 @@ const unresolved = [
   <section class="pvz-history">
     <div class="pvz-history__heading">
       <h1>История смены</h1>
-      <p>Сюда собираем открытие и закрытие смены, передачу смены, отчёт, журнал действий и незавершённые операционные хвосты.</p>
     </div>
 
     <div class="pvz-history__grid">
       <section class="pvz-history__panel">
         <div class="pvz-history__panel-head">
           <h2>Смена</h2>
-          <span>Операционный контур</span>
         </div>
 
         <div class="pvz-history__stats">
@@ -58,7 +56,6 @@ const unresolved = [
         <div class="pvz-history__actions">
           <button type="button" class="pvz-history__primary">Закрыть смену</button>
           <button type="button" class="pvz-history__secondary">Передать смену</button>
-          <button type="button" class="pvz-history__secondary">Сформировать отчёт</button>
         </div>
       </section>
 
@@ -126,7 +123,6 @@ const unresolved = [
   padding: 2rem;
   background: #fff;
   border-radius: 2.4rem;
-  box-shadow: 0 18px 40px rgba(20, 24, 26, 0.04);
 }
 
 .pvz-history__panel-head {

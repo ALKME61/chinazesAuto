@@ -68,20 +68,13 @@ withDefaults(
     <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
   </svg>
 
-  <svg
-    v-else-if="name === 'orders'"
-    :width="size"
-    :height="size"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <rect x="6" y="3.5" width="12" height="17" rx="2.5" stroke="currentColor" stroke-width="1.8" />
-    <path d="M9 8.5H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-    <path d="M9 12H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-    <path d="M9 15.5H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-  </svg>
+  <NuxtImg v-else-if="name === 'orders'" src="/icons/allOrdersIcon.svg" :width="size" :height="size"></NuxtImg>
 
+  <NuxtImg v-else-if="name === 'newOrders'" src="/icons/newOrdersIcon.svg" :width="size" :height="size"></NuxtImg>
+
+  <NuxtImg v-else-if="name === 'inProgress'" src="/icons/inProgressOrder.svg" :width="size" :height="size"></NuxtImg>
+
+  <NuxtImg v-else-if="name === 'shippedOrders'" src="/icons/shippedOrdersIcon.svg" :width="size" :height="size"></NuxtImg>
   <svg
     v-else-if="name === 'clients'"
     :width="size"
@@ -146,20 +139,6 @@ withDefaults(
     <path d="M7 18.5H5.5C4.67 18.5 4 17.83 4 17V6.5C4 5.67 4.67 5 5.5 5H18.5C19.33 5 20 5.67 20 6.5V17C20 17.83 19.33 18.5 18.5 18.5H11.5L8 21V18.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
     <path d="M8 9H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
     <path d="M8 12.5H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-  </svg>
-
-  <svg
-    v-else-if="name === 'clipboard'"
-    :width="size"
-    :height="size"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <rect x="6" y="5" width="12" height="15" rx="2.5" stroke="currentColor" stroke-width="1.8" />
-    <path d="M9 5.5C9 4.4 9.9 3.5 11 3.5H13C14.1 3.5 15 4.4 15 5.5V6H9V5.5Z" stroke="currentColor" stroke-width="1.8" />
-    <path d="M9 10H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-    <path d="M9 13.5H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
   </svg>
 
   <svg

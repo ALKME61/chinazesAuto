@@ -1,4 +1,10 @@
 ﻿<script setup lang="ts">
+import auth from '~/middleware/auth'
+
+definePageMeta({
+  middleware: auth
+})
+
 import DesktopOrdersView from '~/components/shop/desktopOrders/ui/DesktopOrdersView.vue'
 
 const showBarcode = ref(false)

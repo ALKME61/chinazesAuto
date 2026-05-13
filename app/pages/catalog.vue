@@ -1,4 +1,10 @@
 ﻿<script setup lang="ts">
+import auth from '~/middleware/auth'
+
+definePageMeta({
+  middleware: auth
+})
+
 import ShopProductCard from '~/components/shop/productCard/ui/ShopProductCard.vue'
 
 const route = useRoute()
@@ -170,7 +176,7 @@ watch(
             :price="product.price"
             :image="product.image"
             :to="product.to"
-            :show-button="false"
+            :show-button="true"
           />
         </div>
       </section>

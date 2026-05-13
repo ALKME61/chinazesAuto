@@ -1,4 +1,10 @@
 ﻿<script setup lang="ts">
+import auth from '~/middleware/auth'
+
+definePageMeta({
+  middleware: auth
+})
+
 const garageCars = [
   { id: 1, title: 'BMW IV (E39) 540i', vin: 'WAUXSBBJ69LO0432', active: true },
   { id: 2, title: 'BMW IV (E39) 540i', vin: 'WAUXSBBJ69LO0432', active: false },

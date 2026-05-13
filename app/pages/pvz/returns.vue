@@ -7,7 +7,6 @@ definePageMeta({
   pvzSidebar: [
     { label: 'От клиента', to: '/pvz/returns', icon: 'return' },
     { label: 'Поставщику', to: '/pvz/returns?mode=supplier', icon: 'truck' },
-    { label: 'Перемещение', to: '/pvz/returns?mode=move', icon: 'cell' },
   ],
 })
 
@@ -29,7 +28,6 @@ const mode = computed(() => {
   <section class="pvz-page">
     <div class="pvz-page__heading">
       <h1>Возвраты и перемещения</h1>
-      <p>Оставляем только реальные сценарии: возврат клиентом в ПВЗ, возврат поставщику и внутреннее перемещение на склад/другой ПВЗ.</p>
     </div>
 
     <div class="pvz-page__grid">
@@ -38,8 +36,7 @@ const mode = computed(() => {
           <div>
             <h2 v-if="mode === 'client'">Возврат от клиента</h2>
             <h2 v-else-if="mode === 'supplier'">Возврат поставщику</h2>
-            <h2 v-else>Внутреннее перемещение</h2>
-            <p>Причина, состояние товара, фотофиксация и чек-лист — всё в одном сценарии.</p>
+            <p>Причина, состояние товара и фотофиксация</p>
           </div>
         </div>
 
@@ -144,7 +141,6 @@ const mode = computed(() => {
   padding: 2rem;
   background: #fff;
   border-radius: 2.4rem;
-  box-shadow: 0 18px 40px rgba(20, 24, 26, 0.04);
 }
 
 .pvz-page__workspace-head,

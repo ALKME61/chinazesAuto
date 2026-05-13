@@ -1,11 +1,13 @@
 ﻿<script setup lang="ts">
 import ProfileLinks from '~/components/shop/profileLinks/ui/ProfileLinks.vue'
 import { profileLinks } from '~/components/shop/profileLinks/types/profileLinksTypes'
+import auth from '~/middleware/auth'
 
 const route = useRoute()
 
 definePageMeta({
   layout: 'default',
+  middleware: auth
 })
 
 const titleMap: Record<string, string> = {

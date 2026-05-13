@@ -134,7 +134,6 @@ const addScannedItem = () => {
   <section class="pvz-page">
     <div class="pvz-page__heading">
       <h1>Перемещение товара</h1>
-      <p>Сканируем товар, выбираем сценарий и собираем единый поток: на другой ПВЗ, на склад или в новую ячейку.</p>
     </div>
 
     <div class="pvz-page__grid">
@@ -142,7 +141,7 @@ const addScannedItem = () => {
         <div class="pvz-page__workspace-head">
           <div>
             <h2>Сканирование и сборка перемещения</h2>
-            <p>После сканирования товар появляется в списке, а ниже оператор выбирает тип перемещения и целевую точку.</p>
+            <p>После сканирования товар появляется в списке</p>
           </div>
         </div>
 
@@ -158,7 +157,7 @@ const addScannedItem = () => {
           </label>
 
           <button type="button" class="pvz-page__primary" @click="addScannedItem">
-            Добавить после скана
+            Добавить
           </button>
 
           <label class="pvz-page__select">
@@ -295,7 +294,6 @@ const addScannedItem = () => {
   padding: 2rem;
   background: #fff;
   border-radius: 2.4rem;
-  box-shadow: 0 18px 40px rgba(20, 24, 26, 0.04);
 }
 
 .pvz-page__workspace-head,

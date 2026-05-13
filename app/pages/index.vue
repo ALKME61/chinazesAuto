@@ -2,7 +2,7 @@
 import Categories from '~/components/shop/categories/ui/Categories.vue';
 import HowToOrder from '~/components/shop/howToOrder/ui/HowToOrder.vue';
 
-definePageMeta({ layout: 'default' })
+definePageMeta({ layout: 'default', middleware: 'auth' })
 useHead({
   meta: [
     { name: 'theme-color', content: '#ffffff' },

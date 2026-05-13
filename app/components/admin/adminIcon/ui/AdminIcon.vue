@@ -68,20 +68,7 @@ withDefaults(
     <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
   </svg>
 
-  <svg
-    v-else-if="name === 'orders'"
-    :width="size"
-    :height="size"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <rect x="6" y="3.5" width="12" height="17" rx="2.5" stroke="currentColor" stroke-width="1.8" />
-    <path d="M9 8.5H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-    <path d="M9 12H15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-    <path d="M9 15.5H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-  </svg>
-
+  <NuxtImg v-else-if="name === 'orders'" :width="size" :height="size" src="/icons/allOrdersIcon.sv"></NuxtImg>
   <svg
     v-else-if="name === 'clients'"
     :width="size"

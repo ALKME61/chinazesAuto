@@ -129,7 +129,6 @@ const orders = [
   padding: 2rem;
   background: #fff;
   border-radius: 2.4rem;
-  box-shadow: 0 18px 40px rgba(20, 24, 26, 0.04);
 }
 
 .pvz-page__panel--compact {

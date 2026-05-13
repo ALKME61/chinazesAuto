@@ -1,7 +1,10 @@
 ﻿<script setup lang="ts">
 import ShopProductCard from '~/components/shop/productCard/ui/ShopProductCard.vue'
 import Button from '~/shared/ui-kit/Button/Button.vue'
-definePageMeta({ layout: 'default' })
+import auth from '~/middleware/auth'
+
+  
+definePageMeta({ layout: 'default'})
 
 const route = useRoute()
 

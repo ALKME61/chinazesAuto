@@ -65,7 +65,6 @@ definePageMeta({
   padding: 3rem;
   background: #fff;
   border-radius: 3rem;
-  box-shadow: 0 24px 60px rgba(18, 23, 21, 0.06);
 }
 
 .pvz-login__logo {

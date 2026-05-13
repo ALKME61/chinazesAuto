@@ -1,4 +1,10 @@
 ﻿<script setup lang="ts">
+import auth from '~/middleware/auth'
+
+definePageMeta({
+  middleware: auth
+})
+
 const currentDiscount = '10%'
 const currentTurnover = '8000\u20BD'
 

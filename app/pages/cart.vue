@@ -1,4 +1,10 @@
 ﻿<script setup lang="ts">
+import auth from '~/middleware/auth'
+
+definePageMeta({
+  middleware: auth
+})
+
 import Button from '~/shared/ui-kit/Button/Button.vue'
 const cartItems = ref([
   {

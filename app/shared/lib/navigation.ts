@@ -35,7 +35,7 @@ export const quickActionLinks: ActionLink[] = [
   { label: 'Корзина', to: '/cart', icon: 'Cart' },
   { label: 'Заказы', to: '/profile/orders', icon: 'Orders' },
   { label: 'Гараж', to: '/profile/garage', icon: 'Garage' },
-  { label: 'Войти', to: '/auth/login', icon: 'Login' },
+  // { label: 'Войти', to: '/auth/login', icon: 'Login' },
 ]
 
 export const searchLinks: NavLink[] = [

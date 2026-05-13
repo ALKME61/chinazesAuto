@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const iconPaths = {
+  closedEyeBlack: '/icons/closedEyeBlack.svg',
+  eyeBlack: '/icons/eyeBlack.svg',
   onPriceIcon: '/icons/admin/onPriceIcon.svg',
   onStockIcon: '/icons/admin/onStockIcon.svg',
   onSuppliersPrice: '/icons/admin/onSuppliersPrice.svg',
@@ -16,6 +18,7 @@ const iconPaths = {
   ChinazesAutoLogo: '/icons/logo/ChinazesAutoLogo.svg',
   icon: '/icons/logo/icon.svg',
   minus: '/icons/minus.svg',
+  boxIconGreen: '/icons/boxIcon.svg',
   money: '/icons/money.svg',
   Orders: '/icons/Orders.svg',
   phone: '/icons/phone.svg',
@@ -32,7 +35,9 @@ const iconPaths = {
   telegramIcon: '/icons/socialMedia/telegramIcon.svg',
   timeDurationIcon: '/icons/timeDurationIcon.svg',
   vkIcon: '/icons/socialMedia/vkIcon.svg',
-  'burger-mobile': '/icons/burger-mobile.svg'
+  'burger-mobile': '/icons/burger-mobile.svg',
+  warningIcon: '/icons/warningIcon.svg',
+  qr: '/icons/qr.svg',
 } as const
 
 type IconName = keyof typeof iconPaths

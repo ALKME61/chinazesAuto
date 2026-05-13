@@ -9,14 +9,15 @@ export default defineNuxtConfig({
 
   // Только те SCSS-файлы, которые должны стать глобальным CSS (стили, а не переменные)
   css: ['@/assets/scss/reset.scss', '@/assets/scss/global.scss'],
-
   // Глобальные переменные для всех компонентов (без отдельного HTTP-запроса)
   vite: {
+
     server: {
       allowedHosts: [
         'chinazes-auto.shares.zrok.io'
       ]
     },
+
     css: {
       preprocessorOptions: {
         scss: {
@@ -34,8 +35,6 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ['@nuxt/image', 'nuxt-ru-slugify'],
-  image: {
-    provider: 'ipx',
-  },
+  modules: ['@nuxt/image', 'nuxt-ru-slugify', '@pinia/nuxt'],
+
 })

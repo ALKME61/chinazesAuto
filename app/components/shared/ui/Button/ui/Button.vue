@@ -1,20 +1,36 @@
 <script setup lang="ts">
+import { useAuthStore } from '~~/stores/auth';
 import type { ButtonColors } from '../model/buttonTypes';
+import handleLogin from '../../../auth/loginComponent/handleLogin';
 
 const props = withDefaults(
     defineProps<{
-    subtext?: string
-    background?: ButtonColors
-    image?:string
-}>(),
-{
-    background: 'green'
+        subtext?: string
+        background?: ButtonColors
+        image?: string
+        email?: string
+        password?: string
+    }>(),
+    {
+        background: 'green'
+    })
+
+defineEmits(['login']) 
+
+watchEffect(() => {
+  console.log('🔍 PROPS:', {
+    email: props.email,
+    password: props.password,
+    subtext: props.subtext,
+    background: props.background,
+    image: props.image
+  })
 })
 
 const slots = useSlots()
 const defineClassName = ref<null | string>(null)
 
-if(props.background) {
+if (props.background) {
     defineClassName.value = `bg-${props.background}`
 }
 
@@ -47,12 +63,19 @@ const hasSlotImage = computed(() => {
 
 const hasImageContent = computed(() => Boolean(props.image) || hasSlotImage.value)
 
+async function handleClick() {
+  if (props.email && props.password) {
+    await handleLogin(props.email, props.password)
+  } else {
+    console.log('Заполни поля' + ' ' + props.email, props.password)
+  }
+}
 </script>
 <template>
-    <button type="button" :class="['button', defineClassName]">
+    <button @click="handleClick()" type="button" :class="['button', defineClassName]">
         <span :class="['button__content', { 'button__content--with-image': hasImageContent }]">
             <slot />
-            <NuxtImg v-if="props.image" :src="props.image" class="button__image"/>
+            <NuxtImg v-if="props.image" :src="props.image" class="button__image" />
         </span>
         <small v-if="props.subtext">{{ props.subtext }}</small>
     </button>
@@ -65,17 +88,19 @@ const hasImageContent = computed(() => Boolean(props.image) || hasSlotImage.valu
     background-color: #fff;
     color: #10ae3b;
 }
+
 .bg-green {
     background-color: #10ae3b;
     color: #ffffff;
 }
+
 .button {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.3rem;
-    min-height: 6rem;
+    height: 5.4rem;
     border: 0;
     border-radius: $radius-lg;
 

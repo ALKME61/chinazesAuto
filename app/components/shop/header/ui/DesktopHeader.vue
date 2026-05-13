@@ -7,10 +7,15 @@ import {
   quickActionLinks,
   supportLinks,
 } from '~/shared/lib/navigation'
+import { useAuthStore } from '~~/stores/auth'
+
+const authStore = useAuthStore()
 
 const emit = defineEmits<{
   (e: 'toggleCatalog'): void
 }>()
+
+
 </script>
 
 <template>
@@ -29,29 +34,33 @@ const emit = defineEmits<{
         </div>
 
         <div class="shop-header__search-wrap">
-          <Search placeholder="Поиск по VIN, или артикулу"/>
+          <Search placeholder="Поиск по VIN, или артикулу" />
         </div>
-
         <nav class="shop-header__actions" aria-label="Быстрые действия магазина">
-          <NuxtLink
-            v-for="action in quickActionLinks"
-            :key="action.to"
-            :to="action.to"
-            class="shop-header__action"
-          >
+          <NuxtLink v-for="action in quickActionLinks" :key="action.to" :to="action.to" class="shop-header__action">
             <Icon :name="action.icon" width="23" height="23" :alt="action.label" />
             <span>{{ action.label }}</span>
           </NuxtLink>
+          <ClientOnly fallback-tag="span">
+            <template v-if="!authStore.isAuthenticated">
+              <NuxtLink to="/auth/login" class="shop-header__action">
+                <Icon name="Login" width="23" height="23" alt="Войти" />
+                <span>Войти</span>
+              </NuxtLink>
+            </template>
+            <template v-else-if="authStore.isAuthenticated">
+              <NuxtLink to="/profile" class="shop-header__action">
+                <Icon name="profileIcon" width="23" height="23" alt="Профиль" />
+                <span>Профиль</span>
+              </NuxtLink>
+            </template>
+          </ClientOnly>
         </nav>
       </div>
 
       <div class="shop-header__info">
         <div class="shop-header__links">
-          <a
-            v-for="link in supportLinks"
-            :key="link.label"
-            :href="link.href"
-          >
+          <a v-for="link in supportLinks" :key="link.label" :href="link.href">
             {{ link.label }}
           </a>
         </div>

@@ -1,3 +1,11 @@
+# Development progress
+
+## Need to do
+
+- fix refresh token that appears from nowhere
+- add authorization, split middleware, or add logic for different systems
+- add auto-refresh for access token
+
 # Nuxt Minimal Starter
 
 Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
