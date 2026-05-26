@@ -43,4 +43,10 @@ export const profileLinks: ProfileLink[] = [
     icon: '/icons/profile/notificationIcon.svg',
     to: '/profile/notifications',
   },
+  {
+    id: 'support',
+    name: 'Поддержка',
+    icon: '/icons/help.svg',
+    to: '/profile/support',
+  },
 ]

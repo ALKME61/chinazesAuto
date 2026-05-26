@@ -16,6 +16,8 @@
     height: 16rem;
     border-radius: 0 0 1.2rem 1.2rem;
     background-color: #ffffff;
+    max-width: 900px;
+    margin: 0 auto;
     img {
         position: absolute;
         max-width: 250px;

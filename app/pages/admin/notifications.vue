@@ -60,30 +60,6 @@ const hasPreviewImage = false
         </button>
       </div>
     </section>
-
-    <div class="admin-notifications__preview-title">
-      <h2>Предпросмотр</h2>
-    </div>
-
-    <article class="admin-notifications__preview">
-      <header class="admin-notifications__preview-head">
-        <div class="admin-notifications__preview-icon">
-          <AdminIcon name="message" :size="20" />
-          <span />
-        </div>
-
-        <div>
-          <h3>{{ titlePlaceholder }}</h3>
-          <p>Уведомление для всех пользователей</p>
-        </div>
-      </header>
-
-      <p class="admin-notifications__preview-text">{{ descriptionPlaceholder }}</p>
-
-      <div v-if="hasPreviewImage" class="admin-notifications__preview-image">
-        <NuxtImg src="/icons/imageIcon.svg" alt="Превью изображения" />
-      </div>
-    </article>
   </section>
 </template>
 

@@ -1,11 +1,13 @@
 ﻿<script setup lang="ts">
+import { title } from 'node:process'
 import MarkupTierEditor from '~/components/admin/markupTierEditor/ui/MarkupTierEditor.vue'
 import SettingsFeatureCard from '~/components/admin/settingsFeatureCard/ui/SettingsFeatureCard.vue'
+import UInput from '~/components/shared/ui/input/ui/UInput.vue'
 definePageMeta({
   layout: 'admin',
 })
 
-type SettingsView = 'overview' | 'price' | 'stock' | 'suppliers' | 'supplier'
+type SettingsView = 'overview' | 'price' | 'stock' | 'suppliers' | 'supplier' | 'customerDelivery' | 'customerPvz'
 
 type MarkupRange = {
   id: string
@@ -26,7 +28,7 @@ type SupplierRow = {
 const route = useRoute()
 
 const isView = (value: unknown): value is SettingsView =>
-  typeof value === 'string' && ['overview', 'price', 'stock', 'suppliers', 'supplier'].includes(value)
+  typeof value === 'string' && ['overview', 'price', 'stock', 'suppliers', 'supplier', 'customerDelivery', 'customerPvz'].includes(value)
 
 const currentView = computed<SettingsView>(() => {
   const view = route.query.view
@@ -36,21 +38,23 @@ const currentView = computed<SettingsView>(() => {
 const settingsCards = [
   {
     title: 'Наценка по ценам',
-    description: 'Основные градации стоимости товара с общей логикой по каталогу.',
     icon: '/icons/admin/onPriceIcon.svg',
     view: 'price',
   },
   {
-    title: 'Наценка по наличию',
-    description: 'Сценарии для остатков, предзаказа и индивидуальной корректировки.',
-    icon: '/icons/admin/onStockIcon.svg',
-    view: 'stock',
-  },
-  {
     title: 'Наценка у поставщиков',
-    description: 'Базовая и ценовая наценка под конкретного поставщика.',
     icon: '/icons/admin/onSuppliersPrice.svg',
     view: 'suppliers',
+  },
+  {
+    title: 'Добавление сотрудников доставки',
+    icon: '/icons/admin/addDeliverManIcon.svg',
+    view: 'customerDelivery',
+  },
+  {
+    title: 'Добавление сотрудников ПВЗ',
+    icon: '/icons/admin/addPvzCustomerIcon.svg',
+    view: 'customerPvz',
   },
 ] as const
 
@@ -147,18 +151,12 @@ const backToOverview = { path: '/admin/settings' }
     <template v-if="currentView === 'overview'">
       <div class="settings-page__heading">
         <h1>Настройки</h1>
-        <p>Собрали все сценарии наценки в одном месте, чтобы админка оставалась быстрой и предсказуемой.</p>
       </div>
 
       <div class="settings-page__cards-grid">
-        <SettingsFeatureCard
-          v-for="card in settingsCards"
-          :key="card.title"
-          :title="card.title"
-          :description="card.description"
-          :icon="card.icon"
-          :to="{ path: '/admin/settings', query: { view: card.view } }"
-        />
+        <SettingsFeatureCard v-for="card in settingsCards" :key="card.title" :title="card.title"
+          :description="card.description" :icon="card.icon"
+          :to="{ path: '/admin/settings', query: { view: card.view } }" />
       </div>
     </template>
 
@@ -166,16 +164,11 @@ const backToOverview = { path: '/admin/settings' }
       <div class="settings-page__heading settings-page__heading--tight">
         <NuxtLink class="settings-page__back" :to="backToOverview">← К настройкам</NuxtLink>
         <h1>Наценка по стоимости товара</h1>
-        <p>Градации работают последовательно: как только последняя строка заполнена, следующая создаётся автоматически.</p>
       </div>
 
       <div class="settings-page__workspace">
-        <MarkupTierEditor
-          v-model="priceRanges"
-          title="Градации по цене"
-          subtitle="Используем диапазоны стоимости для автоматического расчёта наценки в каталоге."
-          helper="Если последняя градация заполнена полностью, система автоматически подготовит следующую строку от конечной цены."
-        />
+        <MarkupTierEditor v-model="priceRanges" title="Градации по цене"
+          helper="Если последняя градация заполнена полностью, система автоматически подготовит следующую строку от конечной цены." />
 
         <aside class="settings-page__sidebar">
           <section class="settings-page__panel settings-page__panel--accent">
@@ -194,77 +187,17 @@ const backToOverview = { path: '/admin/settings' }
             </div>
           </section>
 
-          <section class="settings-page__panel">
-            <div class="settings-page__panel-head">
-              <h2>Наценка по наличию</h2>
-              <NuxtLink class="settings-page__text-link" :to="{ path: '/admin/settings', query: { view: 'stock' } }">Открыть раздел</NuxtLink>
-            </div>
 
-            <div class="settings-page__scenario-list">
-              <div>
-                <span>Есть в наличии</span>
-                <strong>{{ stockBaseMarkup }}%</strong>
-              </div>
-              <div>
-                <span>Мало остатков</span>
-                <strong>+{{ lowStockMarkup }}%</strong>
-              </div>
-            </div>
-          </section>
         </aside>
       </div>
-    </template>
-
-    <template v-else-if="currentView === 'stock'">
-      <div class="settings-page__heading settings-page__heading--tight">
-        <NuxtLink class="settings-page__back" :to="backToOverview">← К настройкам</NuxtLink>
-        <h1>Наценка по наличию</h1>
-        <p>Раздел подготовлен как отдельная точка входа: общие правила и индивидуальные сценарии поставщиков не смешиваются.</p>
-      </div>
-
-      <div class="settings-page__cards-grid settings-page__cards-grid--compact">
-        <SettingsFeatureCard
-          title="Наценка по ценам"
-          description="Общая ценовая матрица по каталогу."
-          icon="/icons/admin/onPriceIcon.svg"
-          :to="{ path: '/admin/settings', query: { view: 'price' } }"
-        />
-
-        <SettingsFeatureCard
-          title="Индивидуальная наценка"
-          description="Настройка правил по поставщикам и отдельным поставкам."
-          icon="/icons/admin/onSuppliersPrice.svg"
-          :to="{ path: '/admin/settings', query: { view: 'suppliers' } }"
-        />
-      </div>
-
-      <section class="settings-page__panel settings-page__panel--wide">
-        <div class="settings-page__panel-head">
-          <h2>Базовые сценарии по наличию</h2>
-          <span>Пока обозначаем структуру</span>
-        </div>
-
-        <div class="settings-page__stock-grid">
-          <label class="settings-page__stock-card">
-            <span>Есть в наличии</span>
-            <input v-model="stockBaseMarkup" type="number" min="0" max="50">
-            <em>Стартовая корректировка</em>
-          </label>
-
-          <label class="settings-page__stock-card">
-            <span>Мало остатков</span>
-            <input v-model="lowStockMarkup" type="number" min="0" max="50">
-            <em>Когда товар заканчивается</em>
-          </label>
-        </div>
-      </section>
     </template>
 
     <template v-else-if="currentView === 'suppliers'">
       <div class="settings-page__heading settings-page__heading--tight">
         <NuxtLink class="settings-page__back" :to="backToOverview">← К настройкам</NuxtLink>
         <h1>Наценка у поставщиков</h1>
-        <p>У каждого поставщика может быть своя базовая логика, своя наценка по наличию и своя матрица по стоимости товара.</p>
+        <p>У каждого поставщика может быть своя базовая логика, своя наценка по наличию и своя матрица по стоимости
+          товара.</p>
       </div>
 
       <div class="settings-page__suppliers-top">
@@ -279,7 +212,6 @@ const backToOverview = { path: '/admin/settings' }
               <span>Поставщик</span>
               <span>Регион</span>
               <span>Базовая наценка</span>
-              <span>По наличию</span>
               <span>Градаций</span>
               <span>Обновлено</span>
               <span />
@@ -303,7 +235,8 @@ const backToOverview = { path: '/admin/settings' }
                 <span>+{{ supplier.stockMarkup }}%</span>
                 <span>{{ supplier.tiers }}</span>
                 <span>{{ supplier.updated }}</span>
-                <NuxtLink class="settings-page__open-link" :to="{ path: '/admin/settings', query: { view: 'supplier', supplier: supplier.id } }">
+                <NuxtLink class="settings-page__open-link"
+                  :to="{ path: '/admin/settings', query: { view: 'supplier', supplier: supplier.id } }">
                   Настроить
                 </NuxtLink>
               </div>
@@ -313,11 +246,27 @@ const backToOverview = { path: '/admin/settings' }
       </div>
     </template>
 
+    <template v-else-if="currentView === 'customerDelivery'">
+
+      <div class="settings-page__heading settings-page__heading--tight">
+        <NuxtLink class="settings-page__back" :to="backToOverview">← К настройкам</NuxtLink>
+        <h1>Добавление сотрудника доставки</h1>
+      </div>
+
+      <div class="settings-page__workspace">
+        <div class="settings-page__form">
+
+        </div>
+      </div>
+    </template>
+
     <template v-else>
       <div class="settings-page__heading settings-page__heading--tight">
-        <NuxtLink class="settings-page__back" :to="{ path: '/admin/settings', query: { view: 'suppliers' } }">← К поставщикам</NuxtLink>
+        <NuxtLink class="settings-page__back" :to="{ path: '/admin/settings', query: { view: 'suppliers' } }">← К
+          поставщикам</NuxtLink>
         <h1>Наценка у поставщика</h1>
-        <p>Подкрутили интерфейс чуть практичнее референса: сверху короткая сводка по поставщику, справа базовые правила, слева рабочая матрица.</p>
+        <p>Подкрутили интерфейс чуть практичнее референса: сверху короткая сводка по поставщику, справа базовые правила,
+          слева рабочая матрица.</p>
       </div>
 
       <section class="settings-page__supplier-hero">
@@ -325,7 +274,8 @@ const backToOverview = { path: '/admin/settings' }
           <div v-if="activeSupplier.logo" class="settings-page__supplier-logo settings-page__supplier-logo--hero">
             <NuxtImg :src="activeSupplier.logo" :alt="activeSupplier.name" />
           </div>
-          <div v-else class="settings-page__supplier-badge settings-page__supplier-badge--hero">{{ activeSupplier.badge }}</div>
+          <div v-else class="settings-page__supplier-badge settings-page__supplier-badge--hero">{{ activeSupplier.badge
+            }}</div>
 
           <div>
             <h2>{{ activeSupplier.name }}</h2>
@@ -340,18 +290,17 @@ const backToOverview = { path: '/admin/settings' }
           </div>
           <div>
             <span>Активных градаций</span>
-            <strong>{{ supplierConfigs[activeSupplier.id].tiers.filter((item) => item.to !== null && item.markup !== null).length }}</strong>
+            <strong>{{supplierConfigs[activeSupplier.id].tiers.filter((item) => item.to !== null && item.markup !==
+              null).length}}</strong>
           </div>
         </div>
       </section>
 
       <div class="settings-page__workspace">
-        <MarkupTierEditor
-          v-model="supplierConfigs[activeSupplier.id].tiers"
+        <MarkupTierEditor v-model="supplierConfigs[activeSupplier.id].tiers"
           :title="`Градации для ${activeSupplier.name}`"
           subtitle="После выбора поставщика открываем отдельную матрицу по стоимости товара."
-          helper="Базовая наценка справа сработает, если товар не попадает в диапазоны или для конкретного сценария нужен общий fallback."
-        />
+          helper="Базовая наценка справа сработает, если товар не попадает в диапазоны или для конкретного сценария нужен общий fallback." />
 
         <aside class="settings-page__sidebar">
           <section class="settings-page__panel settings-page__panel--accent">
@@ -393,6 +342,7 @@ const backToOverview = { path: '/admin/settings' }
   </section>
 </template>
 
+
 <style scoped lang="scss">
 .settings-page__heading {
   margin-bottom: 2rem;
@@ -425,7 +375,7 @@ const backToOverview = { path: '/admin/settings' }
 
 .settings-page__cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 23rem));
+  grid-template-columns: repeat(4, minmax(0, 23rem));
   gap: 1.6rem;
 }
 
@@ -729,6 +679,7 @@ const backToOverview = { path: '/admin/settings' }
 }
 
 @media (max-width: 1520px) {
+
   .settings-page__suppliers-table,
   .settings-page__panel--wide {
     overflow-x: auto;
@@ -741,6 +692,7 @@ const backToOverview = { path: '/admin/settings' }
 }
 
 @media (max-width: 1260px) {
+
   .settings-page__workspace,
   .settings-page__stock-grid {
     grid-template-columns: 1fr;
@@ -762,4 +714,3 @@ const backToOverview = { path: '/admin/settings' }
   }
 }
 </style>
-

@@ -1,69 +1,184 @@
 ﻿<template>
   <section class="profile-home">
+    <!-- Карточка аккаунта -->
     <article class="profile-home__card profile-home__card--account">
-      <header class="profile-home__account-head">
-        <div class="profile-home__user">
-          <div class="profile-home__avatar">П</div>
-          <div>
-            <h2>Пользователь И.</h2>
+      <!-- Скелетон -->
+      <template v-if="isLoading">
+        <header class="profile-home__account-head">
+          <div class="profile-home__user">
+            <div class="profile-home__avatar profile-home__skeleton"></div>
+            <div>
+              <div class="profile-home__skeleton-text profile-home__skeleton-text--name"></div>
+            </div>
+          </div>
+          <div class="profile-home__ghost-action profile-home__skeleton"></div>
+        </header>
+
+        <div class="profile-home__rows">
+          <div v-for="i in 3" :key="i" class="profile-home__row">
+            <div class="profile-home__skeleton-text profile-home__skeleton-text--label"></div>
+            <div>
+              <div class="profile-home__skeleton-text profile-home__skeleton-text--value"></div>
+              <div class="profile-home__skeleton-text profile-home__skeleton-text--action"></div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- Реальные данные -->
+      <template v-else>
+        <header class="profile-home__account-head">
+          <div class="profile-home__user">
+            <div class="profile-home__avatar">
+              {{ userInitial }}
+            </div>
+            <div>
+              <h2>{{ userFullName }}</h2>
+            </div>
+          </div>
+
+          <button type="button" class="profile-home__ghost-action">
+            <NuxtImg src="/icons/Orders.svg" alt="Заказы" />
+          </button>
+        </header>
+
+        <div class="profile-home__rows">
+          <div class="profile-home__row">
+            <span>Почта</span>
+            <div>
+              <strong>{{ maskedEmail }}</strong>
+              <button type="button">Изменить почту</button>
+            </div>
+          </div>
+
+          <div class="profile-home__row">
+            <span>Пароль</span>
+            <div>
+              <strong>*********</strong>
+              <button type="button">Изменить пароль</button>
+            </div>
+          </div>
+
+          <div class="profile-home__row">
+            <span>Баланс</span>
+            <div>
+              <strong>{{ formattedBalance }}</strong>
+              <button type="button">Пополнить</button>
+            </div>
           </div>
         </div>
 
-        <button type="button" class="profile-home__ghost-action">
-          <NuxtImg src="/icons/Orders.svg" alt="" />
-        </button>
-      </header>
-
-      <div class="profile-home__rows">
-        <div class="profile-home__row">
-          <span>Почта</span>
-          <div>
-            <strong>exa***@***mple.com</strong>
-            <button type="button">Изменить почту</button>
-          </div>
+        <div class="profile-home__logout">
+          <button type="button" class="profile-home__logout-btn" @click="handleLogout">
+            <NuxtImg src="/icons/logout.svg" alt="Выйти" />
+            <span>Выйти из аккаунта</span>
+          </button>
         </div>
-
-        <div class="profile-home__row">
-          <span>Пароль</span>
-          <div>
-            <strong>*********</strong>
-            <button type="button">Изменить пароль</button>
-          </div>
-        </div>
-
-        <div class="profile-home__row">
-          <span>Баланс</span>
-          <div>
-            <strong>14400₽</strong>
-            <button type="button">Пополнить</button>
-          </div>
-        </div>
-      </div>
+      </template>
     </article>
 
-    <article class="profile-home__card profile-home__card--pickup">
+    <!-- Карта ПВЗ (показываем всегда, если есть данные) -->
+    <article 
+      v-if="authStore.user?.selected_pvz" 
+      class="profile-home__card profile-home__card--pickup"
+    >
       <header class="profile-home__pickup-head">
         <div class="profile-home__pickup-title">
-          <NuxtImg src="/icons/pvzIcon.svg" alt="" />
+          <NuxtImg src="/icons/pvzIcon.svg" alt="ПВЗ" />
           <h3>Привязанный пункт выдачи</h3>
         </div>
 
         <div class="profile-home__pickup-address">
-          <NuxtImg src="/icons/geo-pvz.svg" alt="" />
-          <span>ул. Аловаха, 2</span>
+          <NuxtImg src="/icons/geo-pvz.svg" alt="Адрес" />
+          <span>{{ pvzAddress }}</span>
         </div>
       </header>
-
-      <div class="profile-home__map">
-        <iframe
-          src="https://yandex.ru/map-widget/v1/?um=constructor%3Afbae429f9c8065d1d457e2a10ecf0cc8997fc7d6971796c640d4643163a698ef&amp;source=constructor"
-          title="Карта ПВЗ"
-          loading="lazy"
-        />
-      </div>
     </article>
   </section>
 </template>
+
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../../../stores/auth.ts'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const isLoading = ref(true)
+
+onMounted(async () => {
+  if (!authStore.user) {
+    await authStore.fetchUser()
+  }
+  isLoading.value = false
+})
+
+const userInitial = computed(() => {
+  const firstName = authStore.user?.first_name
+  return firstName ? firstName.charAt(0).toUpperCase() : 'П'
+})
+
+const userFullName = computed(() => {
+  const user = authStore.user
+  if (!user) return 'Пользователь'
+  
+  if (user.full_name) return user.full_name
+  if (user.first_name && user.last_name) {
+    return `${user.first_name} ${user.last_name}`
+  }
+  if (user.first_name) return user.first_name
+  
+  return 'Пользователь'
+})
+
+const maskedEmail = computed(() => {
+  const email = authStore.user?.email
+  if (!email) return '***@***.***'
+  
+  const [username, domain] = email.split('@')
+  if (!username || !domain) return email
+  
+  const maskedUsername = username.length > 3 
+    ? username.slice(0, 3) + '***' 
+    : username.slice(0, 1) + '***'
+  
+  const domainParts = domain.split('.')
+  const maskedDomain = domainParts[0].slice(0, 3) + '***'
+  
+  return `${maskedUsername}@${maskedDomain}`
+})
+
+const formattedBalance = computed(() => {
+  const balance = authStore.user?.balance/100
+  if (balance === undefined || balance === null) return '0₽'
+  
+  const numBalance = typeof balance === 'string' ? parseFloat(balance) : balance
+  if (isNaN(numBalance)) return '0₽'
+  
+  return new Intl.NumberFormat('ru-RU').format(numBalance) + '₽'
+})
+
+const pvzAddress = computed(() => {
+  const pvz = authStore.user?.selected_pvz
+  if (!pvz) return ''
+  
+  if (typeof pvz === 'object' && pvz.address) {
+    return pvz.address
+  }
+  
+  return `ПВЗ #${pvz}`
+})
+
+const handleLogout = async () => {
+  try {
+    await authStore.logout()
+    router.push('/')
+  } catch (error) {
+    console.error('Ошибка при выходе:', error)
+  }
+}
+</script>
 
 <style scoped lang="scss">
 .profile-home {
@@ -121,6 +236,7 @@
   border: 0;
   border-radius: 1.2rem;
   background: #f5f5f5;
+  cursor: pointer;
 
   img {
     width: 2rem;
@@ -162,6 +278,89 @@
     background: transparent;
     color: $green;
     font-size: 1.5rem;
+    cursor: pointer;
+  }
+}
+
+// Скелетон-загрузка
+.profile-home__skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+.profile-home__skeleton-text {
+  height: 1.6rem;
+  border-radius: 0.8rem;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+
+  &--name {
+    width: 18rem;
+    height: 2rem;
+  }
+
+  &--label {
+    width: 8rem;
+  }
+
+  &--value {
+    width: 14rem;
+    height: 2rem;
+  }
+
+  &--action {
+    width: 10rem;
+  }
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Стили для кнопки выхода
+.profile-home__logout {
+  margin-top: 2.4rem;
+  padding-top: 2rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.profile-home__logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 1.2rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 1.4rem;
+  background: #fff;
+  color: #666;
+  font-size: 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  img {
+    width: 1.8rem;
+    height: 1.8rem;
+    opacity: 0.7;
+  }
+
+  &:hover {
+    background: #f9f9f9;
+    border-color: #ccc;
+    color: #333;
+  }
+
+  &:active {
+    background: #f0f0f0;
   }
 }
 
@@ -232,6 +431,11 @@
 
   .profile-home__row button {
     font-size: 1.4rem;
+  }
+
+  .profile-home__logout-btn {
+    font-size: 1.4rem;
+    padding: 1rem;
   }
 
   .profile-home__map iframe {

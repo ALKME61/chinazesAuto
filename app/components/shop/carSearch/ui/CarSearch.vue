@@ -12,25 +12,31 @@ const activeMode = ref<SearchMode>('params')
     </header>
 
     <div class="car-search-card__tabs" role="tablist" aria-label="Способ поиска автомобиля">
-      <button
-        type="button"
-        class="car-search-card__tab"
-        :class="{ 'car-search-card__tab--active': activeMode === 'vin' }"
-        @click="activeMode = 'vin'"
-      >
+      <button type="button" class="car-search-card__tab"
+        :class="{ 'car-search-card__tab--active': activeMode === 'vin' }" @click="activeMode = 'vin'">
         По VIN
       </button>
-      <button
-        type="button"
-        class="car-search-card__tab"
-        :class="{ 'car-search-card__tab--active': activeMode === 'params' }"
-        @click="activeMode = 'params'"
-      >
+      <button type="button" class="car-search-card__tab"
+        :class="{ 'car-search-card__tab--active': activeMode === 'params' }" @click="activeMode = 'params'">
         По параметрам
       </button>
     </div>
 
-    <Search placeholder="VIN / FRAME" action-label="Найти" />
+    <Search v-if="activeMode === 'vin'" placeholder="VIN / FRAME" action-label="Найти" />
+    <div v-else class="car-search-params">
+      <div class="car-search-brand">
+        <input type="text" placeholder="Бренд" />
+      </div>
+      <div class="car-search-brand">
+        <input type="text" placeholder="Модель" />
+      </div>
+      <div class="car-search-brand">
+        <input type="text" placeholder="Поколение" />
+      </div>
+      <div class="car-search-brand">
+        <input type="text" placeholder="Комплектация" />
+      </div>
+    </div>
   </section>
 </template>
 

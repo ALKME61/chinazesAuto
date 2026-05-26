@@ -2,7 +2,7 @@
 withDefaults(
   defineProps<{
     label: string
-    tone?: 'orange' | 'purple' | 'green' | 'gray'
+    tone?: 'orange' | 'purple' | 'green' | 'gray' | 'blue' | 'red'
   }>(),
   {
     tone: 'gray',
@@ -44,5 +44,13 @@ withDefaults(
 
 .admin-status-badge--gray {
   background: #929292;
+}
+
+.admin-status-badge--blue {
+  background: linear-gradient(45deg, #1565c0, #1e88e5);
+}
+
+.admin-status-badge--red {
+  background: linear-gradient(45deg, #c62828, #e53935);
 }
 </style>

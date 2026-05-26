@@ -25,14 +25,16 @@
       </div>
     </NuxtLink>
   </div>
-  <div class="link">
-    <div class="link__button-whole-row boxes-link">
-      <div class="button-img-centered">
-        <NuxtImg src="/icons/returnBlurredIcon.png" format="webp" />
+  <NuxtLink to="/driver/boxes/return">
+    <div class="link">
+      <div class="link__button-whole-row boxes-link">
+        <div class="button-img-centered">
+          <NuxtImg src="/icons/returnBlurredIcon.png" format="webp" />
+        </div>
       </div>
+      <p class="pvz-link__header">Возврат</p>
     </div>
-    <p class="pvz-link__header">Возврат</p>
-  </div>
+  </NuxtLink>
 </template>
 
 
@@ -94,9 +96,21 @@
 
 .pvz-link {
   background-color: $orange;
+  transition-duration: 0.3s;
+}
+
+.pvz-link:hover {
+  background-color: #dc7602;
+  transition-duration: 0.3s;
 }
 
 .boxes-link {
   background-color: $green;
+  transition-duration: 0.3s;
+}
+
+.boxes-link:hover {
+  background-color: #0fa136;
+  transition-duration: 0.3s;
 }
 </style>

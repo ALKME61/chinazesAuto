@@ -9,26 +9,26 @@ const addresses = ref([
   {
     id: 1, title: 'Г. Ростов-на-Дону, ул. Пушкинская 1', boxes: [
       {
-        id: 1, addressId: 1, deliveryType: 'outcoming'
+        id: 1, addressTitle: 'Г. Ростов-на-Дону, ул. Пушкинская 1', deliveryType: 'outcoming'
       },
       {
-        id: 2, addressId: 1, deliveryType: 'outcoming'
+        id: 2, addressTitle: 'Г. Ростов-на-Дону, ул. Пушкинская 1', deliveryType: 'outcomingcoming'
       },
       {
-        id: 3, addressId: 1, deliveryType: 'outcoming'
+        id: 3, addressTitle: 'Г. Ростов-на-Дону, ул. Пушкинская 1', deliveryType: 'outcoming'
       },
     ]
   },
   {
     id: 2, title: 'Г. Ростов-на-Дону, ул. Большая Садовая 34', boxes: [
       {
-        id: 1, addressId: 2, deliveryType: 'outcoming'
+        id: 1, addressTitle: 'Г. Ростов-на-Дону, ул. Большая Садовая 34', deliveryType: 'outcoming'
       },
       {
-        id: 2, addressId: 2, deliveryType: 'outcoming'
+        id: 2, addressTitle: 'Г. Ростов-на-Дону, ул. Большая Садовая 34', deliveryType: 'outcoming'
       },
       {
-        id: 3, addressId: 2, deliveryType: 'outcoming'
+        id: 3, addressTitle: 'Г. Ростов-на-Дону, ул. Большая Садовая 34', deliveryType: 'outcoming'
       },
     ]
   }
@@ -47,10 +47,14 @@ const addresses = ref([
     </div>
     <div class="boxes">
       <div class="boxes__container" v-for="address in addresses">
-        <h1>{{ address.title }}</h1>
+        <p>{{ address.title }}</p>
         <div class="boxes__for-address">
-          <div class="box" v-for="box in address.boxes ">
-            {{ box.addressId }}
+          <div class="box" v-for="box in address.boxes">
+            <h1>{{ box.addressTitle }}</h1>
+            <div class="box__info">
+              <span>{{ `№ ${box.id}` }}</span>
+              <NuxtImg src="/icons/giveBoxIcon.svg"></NuxtImg>
+            </div>
           </div>
         </div>
       </div>
@@ -66,6 +70,8 @@ const addresses = ref([
   padding: 24px;
   border-radius: 12px 12px 0 0;
   background-color: #ffffff;
+  max-width: 900px;
+  margin: 0.8rem auto;
 
   .boxes__header,
   .boxes__in-the-car {
@@ -82,6 +88,46 @@ const addresses = ref([
     h2 {
       color: $orange;
       font-size: 16px;
+    }
+  }
+}
+.boxes__for-address {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+.boxes__container {
+  p {
+    font-size: 14px;
+    font-weight: 300;
+    color: #959595
+  }
+  display: flex;
+  flex-direction: column;
+  gap: 2.0rem;
+  margin-bottom: 2rem;
+}
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  color: #ffffff;
+  padding: 1.6rem;
+  border-radius: $radius-md;
+  background: $linear-green;
+  h1 {
+    font-size: 16px;
+  }
+  .box__info {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    span {
+      font-size: 15px;
+      font-weight: 300;
+    }
+    img {
+      width: 30px;
     }
   }
 }

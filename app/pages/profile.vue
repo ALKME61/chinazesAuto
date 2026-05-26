@@ -16,10 +16,15 @@ const titleMap: Record<string, string> = {
   '/profile/orders': 'Заказы',
   '/profile/balance': 'Баланс',
   '/profile/discount': 'Скидки',
-  '/profile/notifications': 'Уведомления',
+  '/profile/support': 'Помощь',
+  '/profile/support/create': 'Новое обращение',
 }
 
-const currentTitle = computed(() => titleMap[route.path] ?? 'Профиль')
+const currentTitle = computed(() => {
+  if (titleMap[route.path]) return titleMap[route.path]
+  if (route.path.startsWith('/profile/support')) return 'Помощь'
+  return 'Профиль'
+})
 </script>
 
 <template>

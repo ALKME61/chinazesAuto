@@ -2,10 +2,18 @@
 import Search from '~/components/shop/search/ui/Search.vue'
 import Icon from '~/shared/ui-kit/Icon/Icon.vue'
 import { helpPhone, helpPhoneHref } from '~/shared/lib/navigation'
+import { useAuthStore } from '~~/stores/auth'
+
+const authStore = useAuthStore()
+const isMounted = ref(false)
 
 const emit = defineEmits<{
   (e: 'toggleCatalog'): void
 }>()
+
+onMounted(() => {
+  isMounted.value = true
+})
 </script>
 
 <template>
@@ -25,13 +33,33 @@ const emit = defineEmits<{
           <NuxtImg src="/icons/logo/ChinazesAutoLogo.svg" alt="Логотип ЧиназесАвто" />
         </NuxtLink>
 
-        <NuxtLink to="/profile" class="mobile-store-header__profile" aria-label="Профиль">
+        <!-- Заглушка во время загрузки -->
+        <div v-if="!isMounted" class="mobile-store-header__profile skeleton">
+          <div class="skeleton-icon"></div>
+        </div>
+
+        <!-- Реальный контент после монтирования -->
+        <NuxtLink 
+          v-else-if="!authStore.isAuthenticated" 
+          to="/auth/login" 
+          class="mobile-store-header__profile" 
+          aria-label="Войти"
+        >
           <Icon name="Login" width="30" height="30" />
+        </NuxtLink>
+
+        <NuxtLink 
+          v-else 
+          to="/profile" 
+          class="mobile-store-header__profile" 
+          aria-label="Профиль"
+        >
+          <Icon name="profileIcon" width="30" height="30" />
         </NuxtLink>
       </div>
 
       <div class="mobile-store-header__search">
-        <Search placeholder="Поиск по VIN, или артикулю"/>
+        <Search placeholder="Поиск по VIN, или артикулу"/>
       </div>
 
       <div class="mobile-store-header__info">
@@ -76,6 +104,7 @@ const emit = defineEmits<{
   padding: 0;
   border: 0;
   background: transparent;
+  cursor: pointer;
 }
 
 .mobile-store-header__logo {
@@ -95,6 +124,27 @@ const emit = defineEmits<{
   justify-content: center;
   width: 3.2rem;
   height: 3.2rem;
+  text-decoration: none;
+  color: inherit;
+  
+  &.skeleton {
+    .skeleton-icon {
+      width: 30px;
+      height: 30px;
+      background: #e0e0e0;
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .mobile-store-header__search {
@@ -113,6 +163,7 @@ const emit = defineEmits<{
   color: #727272;
   font-size: 1.7rem;
   line-height: 1.2;
+  text-decoration: none;
 }
 
 .mobile-store-header__address {

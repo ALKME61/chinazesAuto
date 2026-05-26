@@ -37,4 +37,9 @@ export default defineNuxtConfig({
 
   modules: ['@nuxt/image', 'nuxt-ru-slugify', '@pinia/nuxt'],
 
+  nitro: {
+    experimental: {
+      websocket: true
+    }
+  }
 })

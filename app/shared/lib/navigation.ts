@@ -49,7 +49,7 @@ export const supportLinks: ExternalLink[] = [
 ]
 
 export const legalLinks: NavLink[] = [
-  { label: 'Политика конфиденциальности', to: '/' },
+  { label: 'Политика конфиденциальности', to: '/policy' },
 ]
 
 export const supportContactLinks: ExternalLink[] = [

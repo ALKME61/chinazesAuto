@@ -15,7 +15,12 @@ const emit = defineEmits<{
   (e: 'toggleCatalog'): void
 }>()
 
+// Добавляем состояние для отслеживания монтирования
+const isMounted = ref(false)
 
+onMounted(() => {
+  isMounted.value = true
+})
 </script>
 
 <template>
@@ -41,20 +46,27 @@ const emit = defineEmits<{
             <Icon :name="action.icon" width="23" height="23" :alt="action.label" />
             <span>{{ action.label }}</span>
           </NuxtLink>
-          <ClientOnly fallback-tag="span">
+          
+          <!-- Показываем заглушку во время загрузки -->
+          <div v-if="!isMounted" class="shop-header__action shop-header__action--skeleton">
+            <div class="skeleton-icon"></div>
+            <div class="skeleton-text"></div>
+          </div>
+          
+          <template v-else>
             <template v-if="!authStore.isAuthenticated">
               <NuxtLink to="/auth/login" class="shop-header__action">
                 <Icon name="Login" width="23" height="23" alt="Войти" />
                 <span>Войти</span>
               </NuxtLink>
             </template>
-            <template v-else-if="authStore.isAuthenticated">
+            <template v-else>
               <NuxtLink to="/profile" class="shop-header__action">
                 <Icon name="profileIcon" width="23" height="23" alt="Профиль" />
                 <span>Профиль</span>
               </NuxtLink>
             </template>
-          </ClientOnly>
+          </template>
         </nav>
       </div>
 
@@ -79,6 +91,37 @@ const emit = defineEmits<{
 </template>
 
 <style scoped lang="scss">
+// Добавляем стили для скелетона
+.shop-header__action--skeleton {
+  opacity: 0.6;
+  pointer-events: none;
+  
+  .skeleton-icon {
+    width: 23px;
+    height: 23px;
+    background: #e0e0e0;
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  
+  .skeleton-text {
+    width: 40px;
+    height: 13px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 .shop-header--desktop {
   position: static;
   z-index: 30;

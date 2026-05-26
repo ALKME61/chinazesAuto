@@ -30,7 +30,7 @@ const activePath = computed(() => route.path)
 .mobile-profile-nav {
   position: fixed;
   left: 50%;
-  bottom: 1.6rem;
+  bottom: 3.6rem;
   z-index: 35;
   display: none;
   align-items: center;

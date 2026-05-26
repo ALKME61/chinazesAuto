@@ -6,7 +6,7 @@ definePageMeta({ layout: 'default' })
 <template>
   <main class="catalog-section shop-page">
     <div class="catalog-section__breadcrumbs">Главная страница > Оригинальный каталог</div>
-    <CarSearch />
+    <CarSearch/>
   </main>
 </template>
 

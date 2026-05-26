@@ -4,6 +4,7 @@ const route = useRoute()
 const navItems = [
   { label: 'Заказы', icon: 'orders', to: '/admin' },
   { label: 'Клиенты', icon: 'clients', to: '/admin/clients' },
+  { label: 'Обращения', icon: 'message', to: '/admin/support' },
   { label: 'Уведомления', icon: 'bell', to: '/admin/notifications' },
   { label: 'Склад', icon: 'warehouse', to: '/admin/warehouse' },
   { label: 'ПВЗ', icon: 'store', to: '/admin/pvz' },
@@ -25,7 +26,7 @@ const navItems = [
           :label="item.label"
           :icon="item.icon"
           :to="item.to"
-          :active="route.path === item.to"
+          :active="item.to === '/admin' ? route.path === '/admin' : route.path.startsWith(item.to)"
         />
       </nav>
     </aside>

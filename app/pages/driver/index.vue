@@ -23,6 +23,7 @@ import DriverLinksPvz from '~/components/driver/driverLinks/ui/DriverLinksPvz.vu
 <style scoped lang="scss">
 #app {
   background-color: #EBF0F4;
+
 }
    main {
     border-radius: 1.2rem 1.2rem 0 0;
@@ -30,6 +31,8 @@ import DriverLinksPvz from '~/components/driver/driverLinks/ui/DriverLinksPvz.vu
     background-color: #ffffff;
     height: 80vh;
     padding: 2.4rem;
+    max-width: 900px;
+    margin: 0.8rem auto;
     .main-header {
       display: flex;
       flex-direction: column;

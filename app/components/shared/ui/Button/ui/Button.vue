@@ -15,20 +15,11 @@ const props = withDefaults(
         background: 'green'
     })
 
-defineEmits(['login']) 
-
-watchEffect(() => {
-  console.log('🔍 PROPS:', {
-    email: props.email,
-    password: props.password,
-    subtext: props.subtext,
-    background: props.background,
-    image: props.image
-  })
-})
+defineEmits(['login'])
 
 const slots = useSlots()
 const defineClassName = ref<null | string>(null)
+const isLoading = ref(false)  // ← состояние загрузки
 
 if (props.background) {
     defineClassName.value = `bg-${props.background}`
@@ -37,27 +28,13 @@ if (props.background) {
 const hasSlotImage = computed(() => {
     const checkNodes = (nodes: any[] = []): boolean =>
         nodes.some((node) => {
-            if (!node) {
-                return false
-            }
-
-            if (node.type === 'img') {
-                return true
-            }
-
+            if (!node) return false
+            if (node.type === 'img') return true
             const componentName = node.type?.name || node.type?.__name
-
-            if (componentName === 'NuxtImg' || componentName === 'NuxtPicture') {
-                return true
-            }
-
-            if (Array.isArray(node.children)) {
-                return checkNodes(node.children)
-            }
-
+            if (componentName === 'NuxtImg' || componentName === 'NuxtPicture') return true
+            if (Array.isArray(node.children)) return checkNodes(node.children)
             return false
         })
-
     return checkNodes(slots.default?.() ?? [])
 })
 
@@ -65,23 +42,40 @@ const hasImageContent = computed(() => Boolean(props.image) || hasSlotImage.valu
 
 async function handleClick() {
   if (props.email && props.password) {
-    await handleLogin(props.email, props.password)
+    try {
+      isLoading.value = true  // ← включаем лоадер
+      await handleLogin(props.email, props.password)
+    } finally {
+      isLoading.value = false  // ← выключаем в любом случае
+    }
   } else {
-    console.log('Заполни поля' + ' ' + props.email, props.password)
+    console.log('Заполни поля')
   }
 }
 </script>
+
 <template>
-    <button @click="handleClick()" type="button" :class="['button', defineClassName]">
+    <button 
+      @click="handleClick()" 
+      type="button" 
+      :class="['button', defineClassName]"
+      :disabled="isLoading"
+    >
         <span :class="['button__content', { 'button__content--with-image': hasImageContent }]">
-            <slot />
-            <NuxtImg v-if="props.image" :src="props.image" class="button__image" />
+            <!-- Лоадер -->
+            <template v-if="isLoading">
+              <span class="spinner"></span>
+              Загрузка...
+            </template>
+            <!-- Обычное состояние -->
+            <template v-else>
+              <slot />
+              <NuxtImg v-if="props.image" :src="props.image" class="button__image" />
+            </template>
         </span>
-        <small v-if="props.subtext">{{ props.subtext }}</small>
+        <small v-if="props.subtext && !isLoading">{{ props.subtext }}</small>
     </button>
 </template>
-
-
 
 <style scoped lang="scss">
 .bg-white {
@@ -103,6 +97,13 @@ async function handleClick() {
     height: 5.4rem;
     border: 0;
     border-radius: $radius-lg;
+    cursor: pointer;
+    
+    // Заблокированное состояние
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
 
     small {
         font-size: 1.4rem;
@@ -115,6 +116,10 @@ async function handleClick() {
     font-size: 1.8rem;
     font-weight: 600;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
 }
 
 .button__content--with-image {
@@ -129,5 +134,19 @@ async function handleClick() {
     width: 2rem;
     height: 2rem;
     object-fit: contain;
+}
+
+// Простой спиннер на CSS
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 </style>

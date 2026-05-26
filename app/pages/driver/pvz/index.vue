@@ -36,7 +36,8 @@ definePageMeta({
 <style scoped lang="scss">
 .driver-pvz {
   min-height: calc(100vh - 16rem);
-  margin-top: 8px;
+  max-width: 900px;
+  margin: 0.8rem auto;
   padding: 24px;
   border-radius: 12px 12px 0 0;
   background-color: #ffffff;
@@ -53,6 +54,7 @@ definePageMeta({
   padding: 31px 30px 24px;
   color: #ffffff;
   background-color: $green;
+  margin: 0 auto;
   box-shadow:
     inset -30px 28px 36px -30px #17cd49,
     0 8px 18px rgba(18, 180, 62, 0.18);
