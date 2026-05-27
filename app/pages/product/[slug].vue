@@ -1,51 +1,35 @@
 ﻿<script setup lang="ts">
 import ShopProductCard from '~/components/shop/productCard/ui/ShopProductCard.vue'
 import Button from '~/shared/ui-kit/Button/Button.vue'
-import auth from '~/middleware/auth'
 
-  
 definePageMeta({ layout: 'default'})
 
 const route = useRoute()
 
 const product = {
-  title: 'BOSCH S5 Аккумулятор',
-  price: '12499₽',
-  oldPrice: '14399₽',
-  discount: '-20%',
-  stock: 'В наличии 5 шт',
-  rating: 4.7,
-  reviews: '4000+',
-  reviewer: 'Николай',
+  title: 'BOSCH S5 Аккумулятор', price: '12499₽', oldPrice: '14399₽', discount: '-20%',
+  stock: 'В наличии 5 шт', rating: 4.7, reviews: '4000+', reviewer: 'Николай',
   reviewerText: 'Аккумулятор топовый вообще, но важно проверить размеры перед покупкой.',
-  delivery: 'Послезавтра',
-  images: ['/productExample.png', '/money.png', '/productExample.png'],
+  delivery: 'Послезавтра', images: ['/productExample.png', '/money.png', '/productExample.png'],
 }
 
-const characteristics = [
-  ['Мощность', '350w'],
-  ['Профи-фактор', 'Коробочка'],
-  ['Ёмкость', '75 Ач'],
-  ['Полярность', 'Обратная'],
-]
-
-const fitmentRows = [
-  ['BMW', '520i', 'IV(E69)', '2.0L', '2006-2010'],
-  ['BMW', '520i', 'IV(E69)', '2.0L', '2006-2010'],
-  ['BMW', '520i', 'IV(E69)', '2.0L', '2006-2010'],
-]
-
 const analogs = Array.from({ length: 4 }, (_, index) => ({
-  id: index + 1,
-  title: 'ELECTRO аккумулятор',
-  stock: 'В наличии 5 шт',
-  delivery: '3 рабочих дня',
-  price: '12499₽',
-  image: '/productExample.png',
-  to: `/product/analog-${index + 1}`,
+  id: index + 1, title: 'ELECTRO аккумулятор', stock: 'В наличии 5 шт',
+  delivery: '3 рабочих дня', price: '12499₽', image: '/productExample.png', to: `/product/analog-${index + 1}`,
 }))
 
 const currentSlide = ref(0)
+const touchStartX = ref(0)
+const touchDeltaX = ref(0)
+const isDragging = ref(false)
+const totalSlides = computed(() => product.images.length)
+
+function nextSlide() { currentSlide.value = (currentSlide.value + 1) % totalSlides.value }
+function prevSlide() { currentSlide.value = (currentSlide.value - 1 + totalSlides.value) % totalSlides.value }
+function goToSlide(index: number) { currentSlide.value = index }
+function onTouchStart(e: TouchEvent) { touchStartX.value = e.touches[0].clientX; isDragging.value = true }
+function onTouchMove(e: TouchEvent) { if (!isDragging.value) return; touchDeltaX.value = e.touches[0].clientX - touchStartX.value }
+function onTouchEnd() { isDragging.value = false; if (Math.abs(touchDeltaX.value) > 50) { touchDeltaX.value > 0 ? prevSlide() : nextSlide() }; touchDeltaX.value = 0 }
 
 const activeImage = computed(() => product.images[currentSlide.value] ?? product.images[0])
 const slugTitle = computed(() => {
@@ -58,125 +42,51 @@ const slugTitle = computed(() => {
   <main class="product-page shop-page">
     <section class="product-page__hero card-surface">
       <div class="product-page__gallery">
+        <div class="product-page__gallery-actions product-page__gallery-actions--desktop">
+          <button type="button" @click="prevSlide">←</button><button type="button">↗</button>
+        </div>
         <div class="product-page__gallery-actions product-page__gallery-actions--mobile">
-          <button type="button" aria-label="Назад">←</button>
-          <button type="button" aria-label="Поделиться">↗</button>
+          <button type="button" @click="prevSlide">←</button><button type="button">↗</button>
         </div>
-
-        <div class="product-page__gallery-frame">
-          <NuxtImg :src="activeImage" :alt="slugTitle" />
-        </div>
-
-        <div class="product-page__gallery-dots">
-          <div
-            v-for="(_, index) in product.images"
-            :key="index"
-            type="button"
-            :class="{ 'is-active': index === currentSlide }"
-            @click="currentSlide = index"
-          />
-        </div>
-
-        <div class="product-page__gallery-thumbs">
-          <button
-            v-for="(image, index) in product.images"
-            :key="`${image}-${index}`"
-            type="button"
-            :class="{ 'is-active': index === currentSlide }"
-            @click="currentSlide = index"
-          >
-            <NuxtImg :src="image" :alt="`${slugTitle} ${index + 1}`" />
+        <div class="product-page__gallery-frame" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
+          <button type="button" class="gallery-arrow gallery-arrow--left" @click="prevSlide">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="gallery-slide-track" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
+            <div v-for="(image, index) in product.images" :key="index" class="gallery-slide"><NuxtImg :src="image" :alt="`${slugTitle} ${index + 1}`" /></div>
+          </div>
+          <button type="button" class="gallery-arrow gallery-arrow--right" @click="nextSlide">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>
+        <div class="product-page__gallery-dots">
+          <button v-for="(_, index) in product.images" :key="index" type="button" :class="{ 'is-active': index === currentSlide }" @click="goToSlide(index)" />
+        </div>
+        <div class="product-page__gallery-thumbs">
+          <button v-for="(image, index) in product.images" :key="`${image}-${index}`" type="button" :class="{ 'is-active': index === currentSlide }" @click="goToSlide(index)"><NuxtImg :src="image" :alt="`${slugTitle} ${index + 1}`" /></button>
+        </div>
       </div>
-
       <aside class="product-page__summary">
         <div class="product-page__summary-head">
-          <div class="product-page__price-row">
-            <strong>{{ product.price }}</strong>
-            <span>{{ product.oldPrice }}</span>
-            <em>{{ product.discount }}</em>
-          </div>
+          <div class="product-page__price-row"><strong>{{ product.price }}</strong><span>{{ product.oldPrice }}</span><em>{{ product.discount }}</em></div>
           <button type="button" class="product-page__share product-page__share--desktop">Поделиться</button>
         </div>
-
         <div class="product-page__info-card card-inner">
-          <h1>{{ product.title }}</h1>
-          <p>{{ product.stock }}</p>
-
+          <h1>{{ product.title }}</h1><p>{{ product.stock }}</p>
           <div class="product-page__review-strip">
-            <div class="product-page__rating-card">
-              <strong>★ {{ product.rating }}</strong>
-              <span>Отзывы {{ product.reviews }}</span>
-            </div>
-
-            <div class="product-page__review-card">
-              <NuxtImg src="/productExample.png" alt="Отзыв о товаре" />
-              <div>
-                <div class="product-page__review-stars">★★★★☆</div>
-                <strong>{{ product.reviewer }}</strong>
-                <span>{{ product.reviewerText }}</span>
-              </div>
-            </div>
+            <div class="product-page__rating-card"><strong>★ {{ product.rating }}</strong><span>Отзывы {{ product.reviews }}</span></div>
+            <div class="product-page__review-card"><NuxtImg src="/productExample.png" alt="Отзыв" /><div><div class="product-page__review-stars">★★★★☆</div><strong>{{ product.reviewer }}</strong><span>{{ product.reviewerText }}</span></div></div>
           </div>
-
           <Button :subtext="product.delivery">Добавить в корзину</Button>
         </div>
       </aside>
     </section>
-
-    <section class="product-page__details-grid">
-      <article class="product-page__details-card card-surface">
-        <header>
-          <h2>Характеристики</h2>
-        </header>
-
-        <div class="product-page__table">
-          <div v-for="item in characteristics" :key="item[0]" class="product-page__table-row">
-            <span>{{ item[0] }}</span>
-            <strong>{{ item[1] }}</strong>
-          </div>
-        </div>
-
-        <button type="button" class="product-page__more-link">Все характеристики</button>
-      </article>
-
-      <article class="product-page__details-card card-surface">
-        <header>
-          <h2>На что подходит</h2>
-        </header>
-
-        <div class="product-page__fitment-table">
-          <div v-for="(row, index) in fitmentRows" :key="index" class="product-page__fitment-row">
-            <span v-for="cell in row" :key="cell">{{ cell }}</span>
-          </div>
-        </div>
-
-        <button type="button" class="product-page__more-link">Все автомобили</button>
-      </article>
-    </section>
-
     <section class="product-page__analogs card-surface">
-      <header class="product-page__analogs-head">
-        <h2>Аналоги</h2>
-      </header>
-
+      <header class="product-page__analogs-head"><h2>Аналоги</h2></header>
       <div class="product-page__analogs-grid">
-        <ShopProductCard
-          v-for="analog in analogs"
-          :key="analog.id"
-          :title="analog.title"
-          :stock="analog.stock"
-          :delivery="analog.delivery"
-          :price="analog.price"
-          :image="analog.image"
-          :to="analog.to"
-          variant="mini"
-          :show-button="false"
-        />
+        <ShopProductCard v-for="analog in analogs" :key="analog.id" :title="analog.title" :stock="analog.stock" :delivery="analog.delivery" :price="analog.price" :image="analog.image" :to="analog.to" variant="mini" :show-button="false" />
       </div>
     </section>
-
   </main>
 </template>
 
@@ -242,35 +152,26 @@ const slugTitle = computed(() => {
   display: none;
 }
 
-.product-page__gallery-frame {
+.product-page__gallery-actions--desktop {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 50rem;
-  padding: 3rem;
-  background: #fff;
-  border-radius: 2.8rem;
-
-  img {
-    width: min(44rem, 100%);
-  }
 }
 
-.product-page__gallery-dots {
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-  div {
-    width: 8px;
-    height: 8px;
-    border: 0;
-    border-radius: 50%;
-    background: #d9d9d9;
-  }
+.product-page__gallery-frame {
+  position: relative; display: flex; align-items: center; overflow: hidden; min-height: 50rem; background: #fff; border-radius: 2.8rem;
+}
 
-  .is-active {
-    background: $green;
-  }
+.gallery-slide-track { display: flex; width: 100%; transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1); }
+.gallery-slide { min-width: 100%; display: flex; align-items: center; justify-content: center; padding: 3rem;
+  img { width: min(44rem, 100%); object-fit: contain; user-select: none; -webkit-user-drag: none; }
+}
+.gallery-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 4rem; height: 4rem; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 8px 24px rgba(28,30,32,0.1); color: #444; cursor: pointer; opacity: 0; transition: opacity 0.2s, transform 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+.product-page__gallery-frame:hover .gallery-arrow { opacity: 1; }
+.gallery-arrow--left { left: 1.2rem; } .gallery-arrow--right { right: 1.2rem; }
+.gallery-arrow:hover { color: $green; transform: translateY(-50%) scale(1.1); }
+
+.product-page__gallery-dots { display: flex; justify-content: center; gap: 6px;
+  button { width: 8px; height: 8px; border: 0; border-radius: 50%; padding: 0; background: #d9d9d9; cursor: pointer; transition: background 0.2s; }
+  .is-active { background: $green; }
 }
 
 .product-page__gallery-thumbs {
@@ -427,8 +328,6 @@ const slugTitle = computed(() => {
   letter-spacing: 0.2rem;
 }
 
-
-
 .product-page__details-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -569,38 +468,23 @@ const slugTitle = computed(() => {
     background: #fff;
   }
 
-  .product-page__gallery-actions--mobile {
-    display: flex;
-    padding: 1.6rem 1.6rem 0;
-  }
+  .product-page__gallery-actions--desktop { display: none; }
 
-  .product-page__gallery-actions button {
-    width: 4rem;
-    height: 4rem;
-    border-radius: 50%;
-    background: #f3f3f3;
-    box-shadow: none;
-    font-size: 1.8rem;
-  }
+  .product-page__gallery-actions--mobile { display: flex; padding: 1.6rem 1.6rem 0; }
+
+  .product-page__gallery-actions button { width: 4rem; height: 4rem; border-radius: 50%; background: #f3f3f3; box-shadow: none; font-size: 1.8rem; }
 
   .product-page__gallery-frame {
     min-height: 29rem;
-    padding: 0 2rem 1rem;
     border-radius: 0;
   }
 
-  .product-page__gallery-frame img {
-    width: min(24rem, 100%);
-  }
+  .gallery-slide { padding: 0 2rem 1rem; img { width: min(24rem, 100%); } }
 
-  .product-page__gallery-dots {
-    gap: 0.6rem;
-  }
+  .gallery-arrow { width: 3.2rem; height: 3.2rem; }
+  .gallery-arrow--left { left: 0.6rem; } .gallery-arrow--right { right: 0.6rem; }
 
-  .product-page__gallery-dots div {
-    width: 0.8rem;
-    height: 0.8rem;
-  }
+  .product-page__gallery-dots { gap: 0.6rem; button { width: 0.8rem; height: 0.8rem; } }
 
   .product-page__gallery-thumbs,
   .product-page__share--desktop {

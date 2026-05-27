@@ -344,19 +344,9 @@ const loadTicket = async () => {
     const data = await $fetch<{ ticket: any }>(`/api/tickets/${route.params.id}`)
 
     if (data.ticket) {
-      data.ticket.userName = data.ticket.user_name
-      data.ticket.userId = data.ticket.user_id
-      data.ticket.userEmail = data.ticket.user_email
-      data.ticket.createdAt = data.ticket.created_at
-      data.ticket.updatedAt = data.ticket.updated_at
-      data.ticket.closedAt = data.ticket.closed_at
-
-      data.ticket.messages?.forEach((msg: any) => {
-        msg.userName = msg.user_name
-        msg.userId = msg.user_id
-        msg.userRole = msg.user_role
-        msg.createdAt = msg.created_at
-      })
+      data.ticket.userName = data.ticket.user_name; data.ticket.userId = data.ticket.user_id; data.ticket.userEmail = data.ticket.user_email
+      data.ticket.createdAt = data.ticket.created_at; data.ticket.updatedAt = data.ticket.updated_at; data.ticket.closedAt = data.ticket.closed_at
+      data.ticket.messages?.forEach((msg: any) => { msg.userName = msg.user_name; msg.userId = msg.user_id; msg.userRole = msg.user_role; msg.createdAt = msg.created_at })
     }
 
     ticket.value = data.ticket

@@ -108,6 +108,11 @@ const props = withDefaults(
     font-weight: 500;
     line-height: 1.3;
     color: #202020;
+    min-height: 4.6rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 }
 
@@ -176,6 +181,11 @@ const props = withDefaults(
     h3 {
       font-size: 1.55rem;
       font-weight: 500;
+      min-height: 4rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
   }
 
@@ -212,6 +222,11 @@ const props = withDefaults(
     h3 {
       font-size: 1.35rem;
       font-weight: 500;
+      min-height: 3.4rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
   }
 

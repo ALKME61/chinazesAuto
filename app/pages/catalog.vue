@@ -1,184 +1,116 @@
 ﻿<script setup lang="ts">
 import auth from '~/middleware/auth'
+import ShopProductCard from '~/components/shop/productCard/ui/ShopProductCard.vue'
+import type { CatalogSort } from '~/types/catalog'
 
-definePageMeta({
-  middleware: auth
+definePageMeta({ middleware: auth })
+
+const { products, filters, sort, pagination, isLoading, hasMore, brandOptionsAll, applyFilters, loadMore, setSort, toggleBrand, setPriceRange } = useCatalog()
+
+const showFilters = ref(false)
+const brandSearch = ref('')
+const priceMinInput = ref('')
+const priceMaxInput = ref('')
+
+const filteredBrandOptions = computed(() => {
+  if (!brandSearch.value.trim()) return brandOptionsAll
+  return brandOptionsAll.filter(b => b.toLowerCase().includes(brandSearch.value.toLowerCase()))
 })
 
-import ShopProductCard from '~/components/shop/productCard/ui/ShopProductCard.vue'
+const hasActiveFilters = computed(() => filters.value.brands.length > 0 || filters.value.priceMin !== null || filters.value.priceMax !== null)
 
-const route = useRoute()
-const showFilters = ref(false)
+const sortOptions: { label: string; value: CatalogSort }[] = [
+  { label: 'По убыванию', value: 'price_desc' }, { label: 'По возрастанию', value: 'price_asc' },
+  { label: 'Популярные', value: 'popular' }, { label: 'Быстрее всего', value: 'fastest' },
+]
 
-const brandOptions = ['BOSCH', 'Zekkert', 'Stellox', 'Hiki-Lo', 'Electro']
-const products = Array.from({ length: 12 }, (_, index) => ({
-  id: index + 1,
-  title: 'BOSCH S5 Аккумулятор',
-  stock: 'В наличии 5 шт',
-  delivery: index % 4 === 0 ? 'Доставка 24 часа' : 'Доставка 2-3 рабочих дня',
-  price: '12499₽',
-  image: '/productExample.png',
-  to: '/product/bosch-s5-akkumulyator',
-}))
-
-const categoryTitles: Record<string, string> = {
-  accessories: 'Аксессуары',
-  tires: 'Шины и диски',
-  akb: 'АКБ',
-  chemistry: 'Автохимия',
-  oil: 'Масла и техжидкости',
-  tools: 'Инструменты',
+let priceTimeout: ReturnType<typeof setTimeout> | null = null
+const applyPrice = () => {
+  if (priceTimeout) clearTimeout(priceTimeout)
+  priceTimeout = setTimeout(() => {
+    setPriceRange(priceMinInput.value ? Number(priceMinInput.value) : null, priceMaxInput.value ? Number(priceMaxInput.value) : null)
+  }, 500)
 }
 
+const resetFilters = () => { brandSearch.value = ''; priceMinInput.value = ''; priceMaxInput.value = ''; filters.value.brands = []; applyFilters() }
+
+const categoryTitles: Record<string, string> = { accessories: 'Аксессуары', tires: 'Шины и диски', akb: 'АКБ', chemistry: 'Автохимия', oil: 'Масла и техжидкости', tools: 'Инструменты' }
+const formatPrice = (price: number) => `${price.toLocaleString()}₽`
+const formatDiscount = (discount: number) => `${discount}%`
+
+const route = useRoute()
 const categoryName = computed(() => {
   const raw = Array.isArray(route.query.categoryName) ? route.query.categoryName[0] : route.query.categoryName
-  if (!raw || typeof raw !== 'string') {
-    return 'АКБ'
-  }
-
+  if (!raw || typeof raw !== 'string') return 'АКБ'
   return categoryTitles[raw] ?? raw
 })
 
-watch(showFilters, (value) => {
-  if (import.meta.client && window.innerWidth <= 991) {
-    document.body.style.overflow = value ? 'hidden' : ''
-  }
-})
-
-onBeforeUnmount(() => {
-  if (import.meta.client) {
-    document.body.style.overflow = ''
-  }
-})
-
-watch(
-  () => route.fullPath,
-  () => {
-    showFilters.value = false
-  },
-)
+watch(showFilters, (v) => { if (import.meta.client && window.innerWidth <= 991) document.body.style.overflow = v ? 'hidden' : '' })
+onBeforeUnmount(() => { if (import.meta.client) document.body.style.overflow = '' })
+watch(() => route.fullPath, () => { showFilters.value = false })
 </script>
 
 <template>
   <main class="catalog-page shop-page">
-    <div class="catalog-page__breadcrumbs">Главная страница > BMW V (E39) 2.0i > {{ categoryName }}</div>
-
+    <div class="catalog-page__breadcrumbs">Главная страница &gt; BMW V (E39) 2.0i &gt; {{ categoryName }}</div>
     <div class="catalog-page__layout">
       <Transition name="catalog-filters-fade">
         <div v-if="showFilters" class="catalog-page__mobile-backdrop" @click.self="showFilters = false">
           <aside class="catalog-page__filters catalog-page__filters--drawer">
-            <div class="catalog-page__filters-head">
-              <h2>Фильтры</h2>
-              <button type="button" aria-label="Закрыть фильтры" @click="showFilters = false">×</button>
-            </div>
+            <div class="catalog-page__filters-head"><h2>Фильтры</h2><button type="button" @click="showFilters = false">&times;</button></div>
             <div class="catalog-page__filters-body">
               <section class="catalog-filter">
                 <h3>Бренд</h3>
-                <label class="catalog-filter__search">
-                  <NuxtImg src="/icons/search.svg" alt="" />
-                  <input type="text" placeholder="Поиск">
+                <label class="catalog-filter__search"><NuxtImg src="/icons/search.svg" alt="" /><input v-model="brandSearch" type="text" placeholder="Поиск"></label>
+                <label v-for="brand in filteredBrandOptions" :key="brand" class="catalog-filter__check">
+                  <input type="checkbox" :checked="filters.brands.includes(brand)" @change="toggleBrand(brand)"><span /><em>{{ brand }}</em>
                 </label>
-                <label class="catalog-filter__check catalog-filter__check--all">
-                  <input type="checkbox">
-                  <span />
-                  <em>Все бренды</em>
-                </label>
-                <label v-for="brand in brandOptions" :key="brand" class="catalog-filter__check">
-                  <input type="checkbox">
-                  <span />
-                  <em>{{ brand }}</em>
-                </label>
+                <button v-if="hasActiveFilters" type="button" class="catalog-filter__reset" @click="resetFilters">Сбросить фильтры</button>
               </section>
-
               <section class="catalog-filter">
                 <h3>Цена</h3>
                 <div class="catalog-filter__price-grid">
-                  <input type="text" placeholder="От 2349">
-                  <input type="text" placeholder="До 23699">
+                  <input v-model="priceMinInput" type="text" placeholder="От" @input="applyPrice">
+                  <input v-model="priceMaxInput" type="text" placeholder="До" @input="applyPrice">
                 </div>
               </section>
             </div>
           </aside>
         </div>
       </Transition>
-
       <aside class="catalog-page__filters catalog-page__filters--desktop">
-        <div class="catalog-page__filters-title">
-          <span />
-          <h2>Фильтры</h2>
-        </div>
-
+        <div class="catalog-page__filters-title"><span /><h2>Фильтры</h2></div>
         <section class="catalog-filter">
-          <button type="button" class="catalog-filter__heading">
-            <i />
-            <strong>Бренд</strong>
-          </button>
-
-          <label class="catalog-filter__search">
-            <NuxtImg src="/icons/search.svg" alt="" />
-            <input type="text" placeholder="Поиск">
+          <button type="button" class="catalog-filter__heading"><i /><strong>Бренд</strong></button>
+          <label class="catalog-filter__search"><NuxtImg src="/icons/search.svg" alt="" /><input v-model="brandSearch" type="text" placeholder="Поиск"></label>
+          <label v-for="brand in filteredBrandOptions" :key="brand" class="catalog-filter__check">
+            <input type="checkbox" :checked="filters.brands.includes(brand)" @change="toggleBrand(brand)"><span /><em>{{ brand }}</em>
           </label>
-
-          <label class="catalog-filter__check catalog-filter__check--all">
-            <input type="checkbox">
-            <span />
-            <em>Все бренды</em>
-          </label>
-
-          <label v-for="brand in brandOptions" :key="brand" class="catalog-filter__check">
-            <input type="checkbox">
-            <span />
-            <em>{{ brand }}</em>
-          </label>
+          <button v-if="hasActiveFilters" type="button" class="catalog-filter__reset" @click="resetFilters">Сбросить фильтры</button>
         </section>
-
         <section class="catalog-filter">
-          <button type="button" class="catalog-filter__heading">
-            <i />
-            <strong>Цена</strong>
-          </button>
-
+          <button type="button" class="catalog-filter__heading"><i /><strong>Цена</strong></button>
           <div class="catalog-filter__price-grid">
-            <input type="text" placeholder="От 2349">
-            <input type="text" placeholder="До 23699">
+            <input v-model="priceMinInput" type="text" placeholder="От 2349" @input="applyPrice">
+            <input v-model="priceMaxInput" type="text" placeholder="До 23699" @input="applyPrice">
           </div>
         </section>
       </aside>
-
       <section class="catalog-page__results">
-        <div class="catalog-page__fit">
-          <span>Подходит на:</span>
-          <strong>BMW 5 IV седан (E39) 540 i</strong>
-          <button type="button">×</button>
-        </div>
-
+        <div class="catalog-page__fit"><span>Подходит на:</span><strong>BMW 5 IV седан (E39) 540 i</strong><button type="button">&times;</button></div>
         <div class="catalog-page__controls">
-          <button type="button" class="catalog-page__filter-button" @click="showFilters = true">
-            <NuxtImg src="/icons/filterIcon.svg" alt="" />
-          </button>
-
+          <button type="button" class="catalog-page__filter-button" @click="showFilters = true"><NuxtImg src="/icons/filterIcon.svg" alt="" /></button>
           <div class="catalog-page__sorts">
-            <button type="button" class="catalog-page__sort catalog-page__sort--active">По убыванию</button>
-            <button type="button" class="catalog-page__sort">Популярные</button>
-            <button type="button" class="catalog-page__sort">Быстрее всего</button>
+            <button v-for="opt in sortOptions" :key="opt.value" type="button" class="catalog-page__sort" :class="{ 'catalog-page__sort--active': sort === opt.value }" @click="setSort(opt.value)">{{ opt.label }}</button>
           </div>
-
           <button type="button" class="catalog-page__mobile-sort">Сначала популярные</button>
         </div>
-
-        <div class="catalog-page__grid">
-          <ShopProductCard
-            v-for="product in products"
-            :key="product.id"
-            :title="product.title"
-            :stock="product.stock"
-            :delivery="product.delivery"
-            :price="product.price"
-            :image="product.image"
-            :to="product.to"
-            :show-button="true"
-          />
+        <div v-if="isLoading && !products.length" class="catalog-page__loading">Загрузка товаров...</div>
+        <div v-else class="catalog-page__grid">
+          <ShopProductCard v-for="product in products" :key="product.id" :title="product.title" :stock="product.stockText" :delivery="product.delivery" :price="formatPrice(product.price)" :old-price="product.oldPrice ? formatPrice(product.oldPrice) : undefined" :discount="product.discount ? formatDiscount(product.discount) : undefined" :image="product.image" :to="product.slug" :show-button="true" />
         </div>
+        <div v-if="!isLoading && !products.length" class="catalog-page__empty"><p>Товары не найдены</p><span>Попробуйте изменить параметры фильтрации</span></div>
+        <div v-if="hasMore" class="catalog-page__more"><button type="button" class="catalog-page__more-btn" :disabled="isLoading" @click="loadMore">{{ isLoading ? 'Загрузка...' : `Показать ещё (${products.length} из ${pagination.total})` }}</button></div>
       </section>
     </div>
   </main>
@@ -315,33 +247,17 @@ watch(
 }
 
 .catalog-filter__check {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-
-  input {
-    display: none;
-  }
-
+  display: flex; align-items: center; gap: 1rem; cursor: pointer;
+  input { display: none; }
   span {
-    width: 2rem;
-    height: 2rem;
-    border: 1px solid #c8c8c8;
-    border-radius: 0.4rem;
-    background: #fff;
+    width: 2rem; height: 2rem; border: 1px solid #c8c8c8; border-radius: 0.4rem; background: #fff; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; transition: background 0.15s, border-color 0.15s;
   }
-
-  em {
-    font-style: normal;
-    color: #656565;
-    font-size: 1.5rem;
-  }
+  input:checked + span { background: $green; border-color: $green; &::after { content: '✓'; color: #fff; font-size: 1.2rem; font-weight: 700; line-height: 1; } }
+  em { font-style: normal; color: #656565; font-size: 1.5rem; user-select: none; }
 }
 
-.catalog-filter__check--all {
-  padding-bottom: 1.2rem;
-  border-bottom: 1px solid #ededed;
-}
+.catalog-filter__reset { margin-top: 0.6rem; padding: 0.8rem 0; border: 0; background: transparent; color: #c62828; font-size: 1.4rem; cursor: pointer; width: fit-content; &:hover { text-decoration: underline; } }
 
 .catalog-filter__price-grid {
   display: grid;
@@ -433,6 +349,62 @@ watch(
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 2.2rem 2rem;
+}
+
+.catalog-page__loading {
+  min-height: 20rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 1.6rem;
+}
+
+.catalog-page__empty {
+  min-height: 20rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+
+  p {
+    color: #363636;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  span {
+    color: #999;
+    font-size: 1.4rem;
+  }
+}
+
+.catalog-page__more {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+.catalog-page__more-btn {
+  padding: 1.2rem 3rem;
+  border: 1px solid $green;
+  border-radius: 1.4rem;
+  background: #fff;
+  color: $green;
+  font-size: 1.5rem;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background: $green;
+    color: #fff;
+  }
 }
 
 .catalog-page__mobile-backdrop {
