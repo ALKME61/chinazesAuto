@@ -36,8 +36,14 @@ export default defineEventHandler(async (event) => {
 
         return { user: response.user }
         
-    } catch (e) {
-        console.log(e)
-        return e
+    } catch (e: any) {
+        console.error('login error:', e?.data || e?.message)
+
+        const detail = e?.data?.detail || e?.data?.error || 'Неверный email или пароль'
+
+        throw createError({
+            statusCode: e?.statusCode || 401,
+            message: typeof detail === 'string' ? detail : JSON.stringify(detail),
+        })
     }
 })

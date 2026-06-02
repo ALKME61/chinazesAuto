@@ -53,23 +53,39 @@ export default defineEventHandler(async (event) => {
   // Идём в Django за юзером
   try {
     console.log('📡 Запрос в Django...')
-    const userData = await $fetch(
-      'http://212.41.28.206/api/v1/auth/profile/',  // ← правильный эндпоинт
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`  // ← Bearer обязательно!
-        }
-      }
+    const userData = await $fetch<{ id: number; email: string; full_name?: string; role?: string; permissions?: Record<string, boolean>; balance?: string; monthly_turnover?: string; discount?: number }>(
+      'http://212.41.28.206/api/v1/auth/profile/',
+      { headers: { Authorization: `Bearer ${accessToken}` } }
     )
-
     console.log('✅ Юзер получен:', userData.id, userData.email)
     return { user: userData }
 
   } catch (error: any) {
-    console.log('❌ Ошибка от Django:', error.statusCode, error.data)
-    throw createError({
-      statusCode: error.statusCode || 401,
-      message: 'Невалидный токен'
-    })
+    console.log('⚠️ Django профиль недоступен, декодирую JWT локально')
+    
+    const parts = accessToken.split('.')
+    if (parts.length === 3) {
+      try {
+        const payload = JSON.parse(Buffer.from(parts[1]!, 'base64' as BufferEncoding).toString('utf8'))
+        if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
+          throw createError({ statusCode: 401, message: 'Токен истёк' })
+        }
+        return {
+          user: {
+            id: payload.user_id,
+            email: payload.email || '',
+            full_name: payload.full_name || '',
+            role: payload.role || 'customer',
+            permissions: payload.permissions || {},
+            balance: '0',
+            monthly_turnover: '0',
+            discount: 0,
+          }
+        }
+      } catch {
+        throw createError({ statusCode: Number(error.statusCode) || 401, message: 'Невалидный токен' })
+      }
+    }
+    throw createError({ statusCode: Number(error.statusCode) || 401, message: 'Невалидный токен' })
   }
 })

@@ -249,8 +249,8 @@ console.log('✅ Ответ:', response)
 // Редирект на страницу тикета
 if (response.ticket?.id) {
   await navigateTo(`/profile/support/${response.ticket.id}`)
-} else if (response.id) {
-  await navigateTo(`/profile/support/${response.id}`)
+} else if ((response as any).id) {
+  await navigateTo(`/profile/support/${(response as any).id}`)
 } else {
   console.error('❌ Нет ID:', response)
   navigateTo('/profile/support')

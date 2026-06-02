@@ -12,7 +12,8 @@ export default defineEventHandler(async (event) => {
   }
 
   // Проверка прав
-  if (!user.permissions?.can_access_admin_panel && ticket.userId !== user.id.toString()) {
+  const ticketUserId = (ticket as any).user_id || ticket.userId
+  if (!user.permissions?.can_access_admin_panel && ticketUserId !== user.id.toString()) {
     throw createError({ statusCode: 403 })
   }
 
@@ -28,7 +29,7 @@ export default defineEventHandler(async (event) => {
 
   const message = addMessage(ticketId, {
     userId: user.id.toString(),
-    userName: user.full_name || `${user.first_name} ${user.last_name}`,
+    userName: user.full_name || 'Пользователь',
     userRole: user.permissions?.can_access_admin_panel ? 'admin' : 'customer',
     content: body.content
   })

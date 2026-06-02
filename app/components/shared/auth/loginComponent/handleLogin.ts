@@ -9,8 +9,7 @@ export default async function handleLogin(email: string, password: string) {
         })
         
         await navigateTo('/')
-    } catch (e) { 
-        console.log()
-        console.error('Не получилось')
+    } catch (e) {
+        throw e
     }
 }

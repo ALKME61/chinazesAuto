@@ -12,7 +12,8 @@ export default defineEventHandler(async (event) => {
   }
 
   // Клиент может видеть только свои тикеты
-  if (!user.permissions?.can_access_admin_panel && ticket.userId !== user.id.toString()) {
+  const ticketUserId = (ticket as any).user_id || ticket.userId
+  if (!user.permissions?.can_access_admin_panel && ticketUserId !== user.id.toString()) {
     throw createError({ statusCode: 403, message: 'Доступ запрещён' })
   }
 

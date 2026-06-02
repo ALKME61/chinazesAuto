@@ -11,6 +11,13 @@ const emit = defineEmits<{
   (e: 'toggleCatalog'): void
 }>()
 
+const searchQuery = ref('')
+
+function handleSearch(value: string) {
+  if (!value.trim()) return
+  navigateTo(`/articles/search?article=${encodeURIComponent(value.trim())}`)
+}
+
 onMounted(() => {
   isMounted.value = true
 })
@@ -59,7 +66,7 @@ onMounted(() => {
       </div>
 
       <div class="mobile-store-header__search">
-        <Search placeholder="Поиск по VIN, или артикулу"/>
+        <Search v-model="searchQuery" placeholder="Поиск по VIN, или артикулу" @submit="handleSearch" />
       </div>
 
       <div class="mobile-store-header__info">

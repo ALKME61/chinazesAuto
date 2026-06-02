@@ -1,5 +1,6 @@
 import { db } from './database'
-import { Ticket, TicketMessage, TicketStatus, TicketCategory, CATEGORY_PRIORITY } from '~/types/ticket'
+import type { Ticket, TicketMessage, TicketStatus, TicketCategory } from '~/types/ticket'
+import { CATEGORY_PRIORITY } from '~/types/ticket'
 
 // Убедись что generateId объявлена ДО её использования
 function generateId(): string {

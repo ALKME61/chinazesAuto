@@ -5,6 +5,7 @@ const props = withDefaults(
     stock?: string
     delivery?: string
     price: string
+    article_nr: string
     oldPrice?: string
     discount?: string
     image?: string
@@ -34,6 +35,7 @@ const props = withDefaults(
     </div>
 
     <div class="shop-product-card__body">
+      <p class="shop-product-card__article">{{ article_nr }}</p>
       <p class="shop-product-card__stock">{{ stock }}</p>
       <h3>{{ title }}</h3>
       <p class="shop-product-card__delivery">{{ delivery }}</p>
@@ -54,6 +56,7 @@ const props = withDefaults(
     </div>
 
     <div class="shop-product-card__body">
+      <p class="shop-product-card__article">{{ article_nr }}</p>
       <p class="shop-product-card__stock">{{ stock }}</p>
       <h3>{{ title }}</h3>
       <p class="shop-product-card__delivery">{{ delivery }}</p>
@@ -108,12 +111,13 @@ const props = withDefaults(
     font-weight: 500;
     line-height: 1.3;
     color: #202020;
-    min-height: 4.6rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
     overflow: hidden;
   }
+}
+
+.shop-product-card__article {
+  color: #999;
+  font-size: 1.3rem;
 }
 
 .shop-product-card__stock {

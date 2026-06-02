@@ -68,7 +68,7 @@
           
           <div class="ticket-card__footer">
             <span class="ticket-category">{{ categoryLabels[ticket.category] || ticket.category }}</span>
-            <span class="ticket-date">{{ formatDate(ticket.updated_at || ticket.updatedAt) }}</span>
+            <span class="ticket-date">{{ formatDate((ticket as any).updated_at || ticket.updatedAt) }}</span>
           </div>
         </div>
 

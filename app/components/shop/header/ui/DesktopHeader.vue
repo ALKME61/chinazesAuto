@@ -15,6 +15,13 @@ const emit = defineEmits<{
   (e: 'toggleCatalog'): void
 }>()
 
+const searchQuery = ref('')
+
+function handleSearch(value: string) {
+  if (!value.trim()) return
+  navigateTo(`/articles/search?article=${encodeURIComponent(value.trim())}`)
+}
+
 // Добавляем состояние для отслеживания монтирования
 const isMounted = ref(false)
 
@@ -39,7 +46,7 @@ onMounted(() => {
         </div>
 
         <div class="shop-header__search-wrap">
-          <Search placeholder="Поиск по VIN, или артикулу" />
+          <Search v-model="searchQuery" placeholder="Поиск по VIN, или артикулу" @submit="handleSearch" />
         </div>
         <nav class="shop-header__actions" aria-label="Быстрые действия магазина">
           <NuxtLink v-for="action in quickActionLinks" :key="action.to" :to="action.to" class="shop-header__action">

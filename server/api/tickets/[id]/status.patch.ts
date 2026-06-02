@@ -20,8 +20,9 @@ export default defineEventHandler(async (event) => {
 
   // Админ может менять на любой статус
   // Клиент может только закрыть
+  const ticketUserId = (ticket as any).user_id || ticket.userId
   if (!user.permissions?.can_access_admin_panel) {
-    if (status !== 'closed' || ticket.userId !== user.id.toString()) {
+    if (status !== 'closed' || ticketUserId !== user.id.toString()) {
       throw createError({ statusCode: 403 })
     }
   }
@@ -30,7 +31,7 @@ export default defineEventHandler(async (event) => {
     ticketId, 
     status, 
     user.id.toString(), 
-    user.full_name || `${user.first_name} ${user.last_name}`
+    user.full_name || 'Пользователь'
   )
 
   return { success: true, status }

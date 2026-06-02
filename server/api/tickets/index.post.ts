@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
 
   const ticket = createTicket({
     userId: user.id.toString(),
-    userName: user.full_name || `${user.first_name} ${user.last_name}`,
+    userName: user.full_name || 'Пользователь',
     userEmail: user.email,
     subject: body.subject,
     message: body.message,

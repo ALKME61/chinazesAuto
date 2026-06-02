@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   try {
-    const response = await $fetch<{ access?: string; refresh?: string; user?: any; detail?: string }>('http://84.38.188.108/api/v1/auth/register/', {
+    const response = await $fetch<{ access?: string; refresh?: string; user?: any; detail?: string }>('http://212.41.28.206/api/v1/auth/register/', {
       method: 'POST',
       body: { email: body.email, phone: body.phone, first_name: body.first_name, last_name: body.last_name, password: body.password, password_confirm: body.password_confirm, email_code: body.email_code },
     })

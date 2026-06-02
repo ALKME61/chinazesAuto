@@ -6,9 +6,9 @@ const props = defineProps<{
     ariaLabel?: string
   }>()
 
-
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
+  (e: 'submit', value: string): void
 }>()
 
 const hasTextButton = computed(() => Boolean(props.actionLabel))
@@ -16,10 +16,14 @@ const hasTextButton = computed(() => Boolean(props.actionLabel))
 function updateValue(event: Event) {
   emit('update:modelValue', (event.target as HTMLInputElement).value)
 }
+
+function handleSubmit() {
+  emit('submit', props.modelValue ?? '')
+}
 </script>
 
 <template>
-  <label class="shop-search" :class="{ 'shop-search--compact': hasTextButton }">
+  <form class="shop-search" :class="{ 'shop-search--compact': hasTextButton }" @submit.prevent="handleSubmit">
     <input
       :value="modelValue"
       :placeholder="placeholder"
@@ -28,11 +32,11 @@ function updateValue(event: Event) {
       @input="updateValue"
     >
 
-    <button type="button" class="shop-search__button" :class="{ 'shop-search__button__text': hasTextButton }">
+    <button type="submit" class="shop-search__button" :class="{ 'shop-search__button__text': hasTextButton }">
       <span v-if="hasTextButton">{{ actionLabel }}</span>
       <NuxtImg v-else src="/icons/search.svg" alt="" />
     </button>
-  </label>
+  </form>
 </template>
 
 <style scoped lang="scss">
