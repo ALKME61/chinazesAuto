@@ -8,17 +8,21 @@ import {
   supportLinks,
 } from '~/shared/lib/navigation'
 import { useAuthStore } from '~~/stores/auth'
+import { useCartStore } from '~~/stores/cart'
 
 const authStore = useAuthStore()
+const cartStore = useCartStore()
 
 const emit = defineEmits<{
   (e: 'toggleCatalog'): void
 }>()
 
 const searchQuery = ref('')
+const showAuthPopup = ref(false)
 
 function handleSearch(value: string) {
   if (!value.trim()) return
+  if (!authStore.isAuthenticated) { showAuthPopup.value = true; return }
   navigateTo(`/articles/search?article=${encodeURIComponent(value.trim())}`)
 }
 
@@ -52,6 +56,7 @@ onMounted(() => {
           <NuxtLink v-for="action in quickActionLinks" :key="action.to" :to="action.to" class="shop-header__action">
             <Icon :name="action.icon" width="23" height="23" :alt="action.label" />
             <span>{{ action.label }}</span>
+            <span v-if="action.to === '/cart' && cartStore.totalCount" class="shop-header__badge">{{ cartStore.totalCount }}</span>
           </NuxtLink>
           
           <!-- Показываем заглушку во время загрузки -->
@@ -95,6 +100,20 @@ onMounted(() => {
       </div>
     </div>
   </header>
+
+  <Teleport to="body">
+    <div v-if="showAuthPopup" class="shop-auth-popup" @click.self="showAuthPopup = false">
+      <div class="shop-auth-popup__content">
+        <h3>Авторизуйтесь, чтобы пользоваться поиском</h3>
+        <p>Для поиска по VIN и артикулам необходимо войти в аккаунт</p>
+        <div class="shop-auth-popup__actions">
+          <NuxtLink class="shop-auth-popup__btn shop-auth-popup__btn--primary" to="/auth/login" @click="showAuthPopup = false">Войти</NuxtLink>
+          <NuxtLink class="shop-auth-popup__btn shop-auth-popup__btn--ghost" to="/auth/signin" @click="showAuthPopup = false">Зарегистрироваться</NuxtLink>
+        </div>
+        <button type="button" class="shop-auth-popup__close" @click="showAuthPopup = false">Продолжить без авторизации</button>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <style scoped lang="scss">
@@ -194,12 +213,30 @@ onMounted(() => {
 }
 
 .shop-header__action {
+  position: relative;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   gap: 0.6rem;
   color: #5d5d5d;
   font-size: 1.3rem;
+}
+
+.shop-header__badge {
+  position: absolute;
+  top: -0.4rem;
+  right: -0.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: $orange;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .shop-header__info {
@@ -241,6 +278,70 @@ onMounted(() => {
   .shop-header__actions {
     gap: 1.4rem;
   }
+}
+
+/* Auth popup */
+.shop-auth-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 2rem;
+}
+
+.shop-auth-popup__content {
+  width: min(40rem, 100%);
+  padding: 2.8rem 2.4rem;
+  background: #fff;
+  border-radius: 2.4rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+
+  h3 { font-size: 2rem; font-weight: 700; color: #222; }
+  p { font-size: 1.4rem; color: #777; line-height: 1.5; }
+}
+
+.shop-auth-popup__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 0.6rem;
+}
+
+.shop-auth-popup__btn {
+  display: block;
+  min-height: 4.8rem;
+  line-height: 4.8rem;
+  border-radius: 1.2rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+
+  &--primary {
+    background: $linear-green;
+    color: #fff;
+  }
+
+  &--ghost {
+    background: #f0f7f1;
+    color: $green;
+  }
+}
+
+.shop-auth-popup__close {
+  border: 0;
+  background: none;
+  font-size: 1.3rem;
+  color: #999;
+  cursor: pointer;
+  padding: 0.6rem;
+  &:hover { color: #666; }
 }
 
 @media (max-width: 991px) {

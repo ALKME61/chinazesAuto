@@ -50,7 +50,7 @@ withDefaults(
 
   .admin-metric-card__title,
   .admin-metric-card__meta {
-    color: rgba(255, 255, 255, 0.92);
+    color: #fff;
   }
 
   .admin-metric-card__icon {

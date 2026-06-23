@@ -2,9 +2,16 @@
 import CatalogHeader from './CatalogHeader.vue'
 import DesktopHeader from './DesktopHeader.vue'
 import MobileHeader from './MobileHeader.vue'
+import { useCartStore } from '~~/stores/cart'
 
 const route = useRoute()
 const showCatalogMenu = ref(false)
+
+const cartStore = useCartStore()
+
+if (import.meta.client) {
+  cartStore.fetchCart()
+}
 
 function toggleCatalogMenu() {
   showCatalogMenu.value = !showCatalogMenu.value

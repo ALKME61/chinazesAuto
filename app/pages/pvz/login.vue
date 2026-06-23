@@ -1,9 +1,38 @@
 <script setup lang="ts">
+import { useAuthStore } from '~~/stores/auth'
 import PvzIcon from '~/components/pvz/PvzIcon.vue'
 
 definePageMeta({
   layout: false,
 })
+
+const email = ref('')
+const password = ref('')
+const error = ref('')
+const loading = ref(false)
+
+async function handleLogin() {
+  if (!email.value.trim() || !password.value.trim()) {
+    error.value = 'Введите email и пароль'
+    return
+  }
+  loading.value = true
+  error.value = ''
+  try {
+    const authStore = useAuthStore()
+    await authStore.login({ email: email.value, password: password.value })
+    const user = authStore.user
+    if (user?.role === 'driver') {
+      await navigateTo('/driver')
+    } else {
+      await navigateTo('/pvz/issue')
+    }
+  } catch (e: any) {
+    error.value = e?.message || 'Неверный email или пароль'
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
@@ -19,30 +48,28 @@ definePageMeta({
           <h1>Вход в смену</h1>
         </div>
 
-        <form class="pvz-login__form">
+        <form class="pvz-login__form" @submit.prevent="handleLogin">
           <label>
-            <span>Логин сотрудника</span>
-            <input type="text" placeholder="Например, pvz-pushkina-01">
+            <span>Email сотрудника</span>
+            <input v-model="email" type="email" placeholder="pvz@chinazesauto.ru">
           </label>
 
           <label>
             <span>Пароль</span>
-            <input type="password" placeholder="Введите пароль">
+            <input v-model="password" type="password" placeholder="Введите пароль">
           </label>
 
-          <label>
-            <span>ПВЗ</span>
-            <select>
-              <option>МО, ул. Пушкина 3</option>
-              <option>Ростов-на-Дону, ПВЗ №2</option>
-            </select>
-          </label>
+          <p v-if="error" class="pvz-login__error">{{ error }}</p>
 
-          <NuxtLink class="pvz-login__submit" to="/pvz/issue">
+          <button type="submit" class="pvz-login__submit" :disabled="loading">
             <PvzIcon name="login" :size="18" />
-            <span>Открыть смену</span>
-          </NuxtLink>
+            <span>{{ loading ? 'Вход...' : 'Открыть смену' }}</span>
+          </button>
         </form>
+
+        <div class="pvz-login__links">
+          <NuxtLink to="/driver/auth">Войти как водитель</NuxtLink>
+        </div>
       </div>
     </div>
   </div>
@@ -116,8 +143,7 @@ definePageMeta({
     color: #8a8a8a;
   }
 
-  input,
-  select {
+  input {
     width: 100%;
     height: 5.2rem;
     padding: 0 1.6rem;
@@ -129,6 +155,16 @@ definePageMeta({
   }
 }
 
+.pvz-login__error {
+  margin: 0;
+  padding: 1rem 1.4rem;
+  background: #fff0f0;
+  color: #c62828;
+  font-size: 1.4rem;
+  border-radius: 1rem;
+  line-height: 1.4;
+}
+
 .pvz-login__submit {
   display: inline-flex;
   align-items: center;
@@ -137,13 +173,32 @@ definePageMeta({
   min-height: 5.4rem;
   margin-top: 0.8rem;
   background: $linear-green;
+  border: 0;
   border-radius: 1.4rem;
   font-size: 1.55rem;
   font-weight: 600;
   color: #fff;
   text-decoration: none;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
   span {
     color: #fff;
+  }
+}
+
+.pvz-login__links {
+  display: flex;
+  justify-content: center;
+
+  a {
+    font-size: 1.35rem;
+    color: #18b536;
+    text-decoration: none;
   }
 }
 </style>

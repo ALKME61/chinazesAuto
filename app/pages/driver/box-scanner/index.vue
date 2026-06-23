@@ -7,45 +7,35 @@
       layout: 'without-header'
     })
 
+    const api = useAPI()
     const isValid = ref(undefined)
     const paused = ref(false)
-    const result = ref(null)
+    const result = ref('')
+    const routeId = ref('1')
+    const scanResult = ref(null)
 
-    const validationPending = computed(() => {
-      return isValid.value === undefined && paused.value
-    })
-
-    const validationSuccess = computed(() => {
-      return isValid.value === true
-    })
-
-    const validationFailure = computed(() => {
-      return isValid.value === false
-    })
+    const validationPending = computed(() => isValid.value === undefined && paused.value)
+    const validationSuccess = computed(() => isValid.value === true)
+    const validationFailure = computed(() => isValid.value === false)
 
     const onError = console.error
-
-    const resetValidationState = () => {
-      isValid.value = undefined
-    }
-
-    const timeout = (ms) => {
-      return new Promise((resolve) => {
-        setTimeout(resolve, ms)
-      })
-    }
+    const resetValidationState = () => { isValid.value = undefined }
 
     const onDetect = async ([firstDetectedCode]) => {
-      result.value = firstDetectedCode.rawValue
-      console.log('QR-код = ' + firstDetectedCode.rawValue)
+      const qr = firstDetectedCode.rawValue
+      result.value = qr
       paused.value = true
-
-      // pretend it's taking really long
-      await timeout(3000)
-      isValid.value = result.value.startsWith('http')
-
-      // some more delay, so users have time to read the message
-      await timeout(2000)
+      try {
+        const data = await api('/api/warehouse/driver/scan', {
+          method: 'POST',
+          body: { qr_code: qr, route_id: Number(routeId.value) },
+        })
+        scanResult.value = data
+        isValid.value = true
+      } catch {
+        isValid.value = false
+      }
+      await new Promise(r => setTimeout(r, 2000))
       paused.value = false
     }
 </script>
@@ -64,21 +54,31 @@
     </div>
     <div class="action-header">
       <div class="address">
-        <span>г. Ростов-на-дону, ул. Пушкинская 5</span>
+        <span>{{ scanResult?.source || 'Склад' }} → {{ scanResult?.destination || 'ПВЗ' }}</span>
       </div>
-      <boxDirectionToogler />
+      <div class="address" style="margin-top:0.5rem;">
+        <label style="display:flex;gap:0.5rem;align-items:center;font-size:12px;color:#888;">
+          Route ID:
+          <input v-model="routeId" type="number" style="width:5rem;padding:0.3rem;border:1px solid #ddd;border-radius:0.4rem;">
+        </label>
+      </div>
     </div>
     <div class="action-info">
       <div class="info">
         <div class="info__scanned">
           <NuxtImg src="/driver/qrIcon.svg"></NuxtImg>
           <span>
-            1/3
+            {{ scanResult ? `${scanResult.items_count} товаров` : '0' }}
           </span>
         </div>
         <div class="info__pvz">
-          <span>ПВЗ №1</span>
+          <span>{{ scanResult?.status || 'Ожидание' }}</span>
         </div>
+      </div>
+    </div>
+    <div v-if="scanResult" class="action-info" style="padding-top:0;">
+      <div class="info__scanned" style="background:#e8f5e9;color:#2e7d32;padding:1rem;border-radius:0.8rem;text-align:center;">
+        Коробка {{ scanResult.qr_code }} привязана к маршруту
       </div>
     </div>
   </div>

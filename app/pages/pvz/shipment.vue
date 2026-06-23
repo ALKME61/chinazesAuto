@@ -8,6 +8,32 @@ definePageMeta({
   ],
 })
 
+const api = useAPI()
+const boxResult = ref<any>(null)
+const creatingBox = ref(false)
+
+async function createBox() {
+  if (!scannedItems.value.length) return
+  creatingBox.value = true
+  boxResult.value = null
+  const authStore = useAuthStore()
+  const sourceId = authStore.user?.managed_pvz || 1
+  const destId = Number(selectedDestination.value) || 1
+  try {
+    const data: any = await api('/api/warehouse/box/create', {
+      method: 'POST',
+      body: {
+        source_id: sourceId,
+        dest_id: destId,
+        item_ids: scannedItems.value.map((_, i) => i + 1),
+      },
+    })
+    boxResult.value = data
+    scannedItems.value = []
+  } catch { alert('Ошибка создания коробки') }
+  finally { creatingBox.value = false }
+}
+
 const router = useRouter()
 const route = useRoute()
 
@@ -64,13 +90,12 @@ const scannedItems = ref<ScannedItem[]>([])
 
 const destinations = {
   pvz: [
-    { value: 'rostov-1', label: 'ПВЗ Ростов-на-Дону, Пушкинская 2' },
-    { value: 'moscow-4', label: 'ПВЗ МО, ул. Пушкина 3' },
-    { value: 'lugansk-1', label: 'ПВЗ Луганск №1' },
+    { value: '3', label: 'ПВЗ Чернухино' },
+    { value: '4', label: 'ПВЗ Артемовск' },
+    { value: '5', label: 'ПВЗ Алчевск' },
   ],
   warehouse: [
-    { value: 'msk-main', label: 'Склад Москва Центральный' },
-    { value: 'rnd-main', label: 'Склад Ростов-на-Дону' },
+    { value: '1', label: 'Ростов (склад)' },
   ],
   cell: [
     { value: '113', label: 'СПЯ 113' },
@@ -79,7 +104,7 @@ const destinations = {
   ],
 } as const
 
-const selectedDestination = ref('rostov-1')
+const selectedDestination = ref('5')
 
 watch(
   movementMode,
@@ -227,33 +252,20 @@ const addScannedItem = () => {
           <span>В зависимости от режима</span>
         </div>
 
-        <div class="pvz-page__action-stack">
-          <button v-if="movementMode === 'pvz'" type="button" class="pvz-page__primary">
-            Собрать коробку на ПВЗ
+        <div class="pvz-page__primary-row">
+          <button type="button" class="pvz-page__primary" :disabled="creatingBox" @click="createBox">
+            {{ creatingBox ? 'Создание...' : 'Создать коробку' }}
           </button>
+        </div>
 
-          <button v-if="movementMode !== 'cell'" type="button" class="pvz-page__secondary">
-            Распечатать QR-коды
-          </button>
-
-          <button v-if="movementMode === 'warehouse'" type="button" class="pvz-page__primary">
-            Подтвердить отправку на склад
-          </button>
-
-          <button v-if="movementMode === 'cell'" type="button" class="pvz-page__primary" :disabled="hasMixedOwners">
-            Переложить в новую ячейку
-          </button>
-
-          <div class="pvz-page__hint">
-            <p v-if="movementMode === 'pvz'">
-              После сборки коробки печатаем QR-коды и отправляем её на выбранный ПВЗ.
-            </p>
-            <p v-else-if="movementMode === 'warehouse'">
-              Для склада оставляем ту же механику: подтверждаем направление и печатаем QR-код для коробки.
-            </p>
-            <p v-else>
-              Для смены ячейки оператор выпикивает товар и выбирает новую СПЯ, куда система его переложит.
-            </p>
+        <div v-if="boxResult" class="pvz-page__panel" style="margin-top:1.2rem;">
+          <div class="pvz-page__panel-head">
+            <h2>Коробка создана</h2>
+            <span>{{ boxResult.status }}</span>
+          </div>
+          <div class="pvz-page__match-body" style="margin-top:0.8rem;">
+            <p><b>QR-код:</b> {{ boxResult.qr_code }}</p>
+            <p><b>Товаров:</b> {{ boxResult.items_count }}</p>
           </div>
         </div>
       </aside>

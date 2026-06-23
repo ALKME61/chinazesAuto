@@ -49,128 +49,20 @@ const employeesRows = [
   },
 ]
 
-const chartData = [
-  { month: 'Янв', value: 4500 },
-  { month: 'Фев', value: 13000 },
-  { month: 'Мар', value: 23000 },
-  { month: 'Апр', value: 5500 },
-  { month: 'Май', value: 12500 },
-  { month: 'Июнь', value: 26000 },
-  { month: 'Июль', value: 18500 },
-  { month: 'Авг', value: 11200 },
-  { month: 'Сент', value: 9000 },
-  { month: 'Окт', value: 23000 },
-  { month: 'Ноя', value: 28000 },
-  { month: 'Дек', value: 22500 },
-]
-
-const chartWidth = 980
-const chartHeight = 290
-const maxValue = 40000
-const activeIndex = 9
-const yLabels = [40000, 30000, 20000, 15000, 10000, 5000, 0]
-const linePathRef = ref<SVGPathElement | null>(null)
-const markerPoint = ref<{ x: number; y: number } | null>(null)
-
-const points = computed(() => {
-  const stepX = chartWidth / (chartData.length - 1)
-
-  return chartData.map((item, index) => ({
-    ...item,
-    x: Number((index * stepX).toFixed(2)),
-    y: Number((chartHeight - (item.value / maxValue) * chartHeight).toFixed(2)),
-  }))
-})
-
-const linePath = computed(() => {
-  const items = points.value
-
-  if (!items.length) {
-    return ''
-  }
-
-  let path = `M ${items[0].x} ${items[0].y}`
-
-  for (let index = 0; index < items.length - 1; index += 1) {
-    const current = items[index]
-    const next = items[index + 1]
-    const controlX = Number(((current.x + next.x) / 2).toFixed(2))
-
-    path += ` C ${controlX} ${current.y}, ${controlX} ${next.y}, ${next.x} ${next.y}`
-  }
-
-  return path
-})
-
-const areaPath = computed(() => {
-  const items = points.value
-
-  if (!items.length) {
-    return ''
-  }
-
-  const first = items[0]
-  const last = items[items.length - 1]
-
-  return `${linePath.value} L ${last.x} ${chartHeight} L ${first.x} ${chartHeight} Z`
-})
-
-const gridLines = computed(() =>
-  yLabels.map((value) => ({
-    value,
-    y: Number((chartHeight - (value / maxValue) * chartHeight).toFixed(2)),
-  })),
-)
-
-const activePoint = computed(() => points.value[activeIndex])
-
-const updateMarkerPoint = () => {
-  if (!linePathRef.value || !activePoint.value) {
-    markerPoint.value = activePoint.value
-    return
-  }
-
-  const path = linePathRef.value
-  const targetX = activePoint.value.x
-  const totalLength = path.getTotalLength()
-  let closestPoint = path.getPointAtLength(0)
-  let closestDistance = Math.abs(closestPoint.x - targetX)
-
-  for (let step = 1; step <= 240; step += 1) {
-    const pointAtLength = path.getPointAtLength((totalLength * step) / 240)
-    const distance = Math.abs(pointAtLength.x - targetX)
-
-    if (distance < closestDistance) {
-      closestPoint = pointAtLength
-      closestDistance = distance
-    }
-  }
-
-  markerPoint.value = {
-    x: Number(closestPoint.x.toFixed(2)),
-    y: Number(closestPoint.y.toFixed(2)),
-  }
-}
-
-const tooltipStyle = computed(() => ({
-  left: `${(((markerPoint.value?.x ?? activePoint.value.x) / chartWidth) * 100).toFixed(2)}%`,
-  top: `${(((markerPoint.value?.y ?? activePoint.value.y) / chartHeight) * 100).toFixed(2)}%`,
-}))
-
-const markerStyle = computed(() => ({
-  left: `${(((markerPoint.value?.x ?? activePoint.value.x) / chartWidth) * 100).toFixed(2)}%`,
-  top: `${(((markerPoint.value?.y ?? activePoint.value.y) / chartHeight) * 100).toFixed(2)}%`,
-}))
-
-onMounted(async () => {
-  await nextTick()
-  updateMarkerPoint()
-})
-
-watch(linePath, async () => {
-  await nextTick()
-  updateMarkerPoint()
-})
+const chartData = computed(() => [
+  { label: 'Янв', value: 4500 },
+  { label: 'Фев', value: 13000 },
+  { label: 'Мар', value: 23000 },
+  { label: 'Апр', value: 5500 },
+  { label: 'Май', value: 12500 },
+  { label: 'Июнь', value: 26000 },
+  { label: 'Июль', value: 18500 },
+  { label: 'Авг', value: 11200 },
+  { label: 'Сент', value: 9000 },
+  { label: 'Окт', value: 23000 },
+  { label: 'Ноя', value: 28000 },
+  { label: 'Дек', value: 22500 },
+])
 </script>
 
 <template>
@@ -359,78 +251,7 @@ watch(linePath, async () => {
             <span class="pvz-detail__chart-chevron" />
           </button>
         </div>
-
-        <div class="pvz-detail__chart-body">
-          <div class="pvz-detail__axis pvz-detail__axis--y">
-            <span v-for="gridLine in gridLines" :key="gridLine.value">{{ gridLine.value }}₽</span>
-          </div>
-
-          <div class="pvz-detail__plot">
-            <div class="pvz-detail__canvas">
-              <svg
-                class="pvz-detail__svg"
-                :viewBox="`0 0 ${chartWidth} ${chartHeight}`"
-                preserveAspectRatio="none"
-                aria-hidden="true"
-              >
-                <defs>
-                  <linearGradient id="pvz-stats-gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#ff9b1f" stop-opacity="0.48" />
-                    <stop offset="72%" stop-color="#ff9b1f" stop-opacity="0.08" />
-                    <stop offset="100%" stop-color="#ff9b1f" stop-opacity="0" />
-                  </linearGradient>
-                </defs>
-
-                <g class="pvz-detail__grid">
-                  <line
-                    v-for="gridLine in gridLines"
-                    :key="`grid-${gridLine.value}`"
-                    x1="0"
-                    :y1="gridLine.y"
-                    :x2="chartWidth"
-                    :y2="gridLine.y"
-                  />
-
-                  <line
-                    v-for="point in points"
-                    :key="`vertical-${point.month}`"
-                    :x1="point.x"
-                    y1="0"
-                    :x2="point.x"
-                    :y2="chartHeight"
-                  />
-                </g>
-
-                <path class="pvz-detail__area" :d="areaPath" />
-                <path ref="linePathRef" class="pvz-detail__line" :d="linePath" />
-              </svg>
-
-              <div v-if="activePoint" class="pvz-detail__marker" :style="markerStyle">
-                <span class="pvz-detail__marker-ring pvz-detail__marker-ring--outer" />
-                <span class="pvz-detail__marker-ring pvz-detail__marker-ring--inner" />
-                <span class="pvz-detail__marker-dot" />
-              </div>
-
-              <div v-if="activePoint" class="pvz-detail__tooltip" :style="tooltipStyle">
-                <h3>{{ activePoint.month }}, 2026</h3>
-                <div class="pvz-detail__tooltip-grid">
-                  <div>
-                    <strong>{{ activePoint.value }}₽</strong>
-                    <span>Оборот</span>
-                  </div>
-                  <div>
-                    <strong>30%</strong>
-                    <span>Скидка</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="pvz-detail__axis pvz-detail__axis--x">
-              <span v-for="point in points" :key="`month-${point.month}`">{{ point.month }}</span>
-            </div>
-          </div>
-        </div>
+        <AdminAreaChart :data="chartData" y-suffix="₽" value-label="Оборот" gradient-id="pvz-stats-gradient" />
       </article>
     </template>
   </section>

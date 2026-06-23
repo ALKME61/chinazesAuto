@@ -1,35 +1,58 @@
-<script setup>
+<script setup lang="ts">
 definePageMeta({
   layout: 'driver',
 })
+
+const api = useAPI()
+const loading = ref(true)
+const points = ref<any[]>([])
+
+async function loadPoints() {
+  loading.value = true
+  try {
+    const data: any = await api('/api/warehouse/pickup-points')
+    points.value = data?.results || (Array.isArray(data) ? data : [])
+  } catch {
+    points.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(loadPoints)
 </script>
 
 <template>
   <main class="driver-pvz">
-    <NuxtLink to="/driver/box-scanner">
-      <section class="pvz-card" aria-label="ПВЗ №1">
-        <div class="pvz-card__content">
-          <div class="pvz-card__header">
-            <h1>ПВЗ №1</h1>
-            <p>Город. Ростов-на-дону,<br>ул. Пушкинская 1</p>
-          </div>
-  
-          <div class="pvz-card__stats">
-            <div class="pvz-stat">
-              <img src="/icons/takeBoxIcon.svg" alt="" aria-hidden="true">
-              <span>1 коробка</span>
+    <div v-if="loading" class="driver-pvz__loading">Загрузка...</div>
+
+    <template v-else-if="points.length">
+      <NuxtLink v-for="point in points" :key="point.id" :to="'/driver/box-scanner'">
+        <section class="pvz-card" :aria-label="'ПВЗ ' + (point.name || point.id)">
+          <div class="pvz-card__content">
+            <div class="pvz-card__header">
+              <h1>{{ point.name || 'ПВЗ №' + point.id }}</h1>
+              <p>{{ point.address || point.city || '' }}</p>
             </div>
-  
-            <div class="pvz-stat">
-              <img src="/icons/giveBoxIcon.svg" alt="" aria-hidden="true">
-              <span>3 коробки</span>
+
+            <div class="pvz-card__stats">
+              <div class="pvz-stat">
+                <img src="/icons/takeBoxIcon.svg" alt="">
+                <span>{{ point.boxes_to_take || 0 }} коробок</span>
+              </div>
+              <div class="pvz-stat">
+                <img src="/icons/giveBoxIcon.svg" alt="">
+                <span>{{ point.boxes_to_give || 0 }} коробок</span>
+              </div>
             </div>
           </div>
-        </div>
-  
-        <img class="pvz-card__warehouse" src="/icons/homePvzLinkIcon.png" alt="" aria-hidden="true">
-      </section>
-    </NuxtLink>
+
+          <img class="pvz-card__warehouse" src="/icons/homePvzLinkIcon.png" alt="">
+        </section>
+      </NuxtLink>
+    </template>
+
+    <div v-else class="driver-pvz__loading">Нет доступных ПВЗ</div>
   </main>
 </template>
 
@@ -41,6 +64,15 @@ definePageMeta({
   padding: 24px;
   border-radius: 12px 12px 0 0;
   background-color: #ffffff;
+  display: grid;
+  gap: 2rem;
+}
+
+.driver-pvz__loading {
+  text-align: center;
+  padding: 4rem 2rem;
+  font-size: 1.6rem;
+  color: #888;
 }
 
 .pvz-card {
@@ -58,6 +90,7 @@ definePageMeta({
   box-shadow:
     inset -30px 28px 36px -30px #17cd49,
     0 8px 18px rgba(18, 180, 62, 0.18);
+  text-decoration: none;
 
   &::before,
   &::after {

@@ -3,6 +3,13 @@ import PvzIcon from '~/components/pvz/PvzIcon.vue'
 
 const route = useRoute()
 
+async function handleLogout() {
+  const { useAuthStore } = await import('~~/stores/auth')
+  const authStore = useAuthStore()
+  await authStore.logout()
+  await navigateTo('/auth/login')
+}
+
 const mainNav = [
   { label: 'Выдача', to: '/pvz/issue' },
   { label: 'Приёмка', to: '/pvz/acceptance' },
@@ -66,9 +73,9 @@ const isActive = (target: string) => {
           <small>ПВЗ МО, ул. Пушкина 3</small>
         </div>
 
-        <NuxtLink to="/pvz/login" class="pvz-layout__logout" aria-label="Выйти из ПВЗ">
+        <button type="button" class="pvz-layout__logout" aria-label="Выйти из ПВЗ" @click="handleLogout">
           <PvzIcon name="logout" :size="18" />
-        </NuxtLink>
+        </button>
       </div>
     </aside>
 
@@ -195,9 +202,11 @@ const isActive = (target: string) => {
   width: 3.8rem;
   height: 3.8rem;
   background: #f7f7f7;
+  border: 0;
   border-radius: 1.2rem;
   color: #5c5c5c;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .pvz-layout__main {

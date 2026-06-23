@@ -1,5 +1,5 @@
 <script setup lang="ts">
-await navigateTo('/pvz/login', { replace: true })
+await navigateTo('/pvz/issue', { replace: true })
 </script>
 
 <template>

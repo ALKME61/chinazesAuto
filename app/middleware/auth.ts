@@ -1,52 +1,41 @@
 import { useAuthStore } from "~~/stores/auth"
 
-export default defineNuxtRouteMiddleware(async (to) => {
-  if (import.meta.server) {
-    console.log('🔵 SSR: пропускаю middleware')
-    return
-  }
+function hasAccess(role: string | undefined, path: string): boolean {
+  if (!role) return false
+  if (role === 'super_admin') return true
+  if (path.startsWith('/admin')) return role === 'admin' || role === 'super_admin'
+  if (path.startsWith('/pvz')) return role === 'pvz_worker' || role === 'super_admin'
+  if (path.startsWith('/driver')) return role === 'driver' || role === 'super_admin'
+  return true
+}
 
+export default defineNuxtRouteMiddleware(async (to) => {
+  if (import.meta.server) return
+
+  // Публичные страницы — пропускаем без проверки auth
+  const publicPages = ['/auth/login', '/auth/signin', '/', '/policy']
+  if (publicPages.includes(to.path)) return
+
+  // Для всего остального — проверяем авторизацию
   const authStore = useAuthStore()
-  
+
   if (authStore.isLoading) {
     await authStore.fetchUser()
   }
 
-  const publicPages = ['/auth/login', '/auth/signin', '/']
-  
-  if (publicPages.includes(to.path)) return
-
   if (!authStore.isAuthenticated) {
-    console.log('🚨 Редирект на /auth/login')
     return navigateTo('/auth/login')
   }
 
+  // Ролевые панели
   const user = authStore.user
-  
-  if (to.path.startsWith('/admin') && !user?.permissions?.can_access_admin_panel) {
-    console.log('🚫 Нет доступа к админ-панели')
-    throw createError({ 
-      statusCode: 404, 
-      message: 'Страница не найдена',
-      fatal: true 
-    })
-  }
+  const role: string | undefined = user?.role || user?.permissions?.role
 
-  if (to.path.startsWith('/pvz') && !user?.permissions?.can_access_pvz_panel) {
-    console.log('🚫 Нет доступа к PVZ-панели')
-    throw createError({ 
-      statusCode: 404, 
-      message: 'Страница не найдена',
-      fatal: true 
-    })
-  }
+  const isAdminPath = to.path.startsWith('/admin')
+  const isPvzPath = to.path.startsWith('/pvz')
+  const isDriverPath = to.path.startsWith('/driver')
 
-  if (to.path.startsWith('/driver') && !user?.permissions?.can_access_driver_app) {
-    console.log('🚫 Нет доступа к Driver app')
-    throw createError({ 
-      statusCode: 404, 
-      message: 'Страница не найдена',
-      fatal: true 
-    })
+  if ((isAdminPath || isPvzPath || isDriverPath) && !hasAccess(role, to.path)) {
+    throw createError({ statusCode: 404, message: 'Страница не найдена', fatal: true })
   }
 })

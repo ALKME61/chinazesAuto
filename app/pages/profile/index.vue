@@ -55,7 +55,7 @@
             <span>Пароль</span>
             <div>
               <strong>*********</strong>
-              <button type="button">Изменить пароль</button>
+              <button type="button" @click="openPasswordModal()">Изменить пароль</button>
             </div>
           </div>
 
@@ -63,7 +63,7 @@
             <span>Баланс</span>
             <div>
               <strong>{{ formattedBalance }}</strong>
-              <button type="button">Пополнить</button>
+              <button type="button" @click="router.push('/profile/balance')">Пополнить</button>
             </div>
           </div>
         </div>
@@ -95,6 +95,32 @@
       </header>
     </article>
   </section>
+
+  <!-- Password change modal -->
+  <Teleport to="body">
+    <div v-if="showPasswordModal" class="profile-modal" @click.self="showPasswordModal = false">
+      <div class="profile-modal__content">
+        <div class="profile-modal__head">
+          <h3>Изменить пароль</h3>
+          <button type="button" class="profile-modal__close" @click="showPasswordModal = false">&times;</button>
+        </div>
+
+        <div v-if="pwError" class="profile-modal__error">{{ pwError }}</div>
+        <div v-if="pwSuccess" class="profile-modal__success">{{ pwSuccess }}</div>
+
+        <template v-if="pwStep === 'send'">
+          <label>Email <input v-model="pwEmail" type="email" readonly /></label>
+          <button type="button" :disabled="pwLoading" @click="sendResetCode">{{ pwLoading ? 'Отправка...' : 'Отправить код' }}</button>
+        </template>
+
+        <template v-else>
+          <label>Код из email <input v-model="pwCode" type="text" placeholder="123456" /></label>
+          <label>Новый пароль <input v-model="pwNewPassword" type="password" placeholder="Новый пароль" /></label>
+          <button type="button" :disabled="pwLoading" @click="confirmReset">{{ pwLoading ? 'Сохранение...' : 'Сохранить' }}</button>
+        </template>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -102,10 +128,58 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../../stores/auth.ts'
 
+const api = useAPI()
 const router = useRouter()
 const authStore = useAuthStore()
 
 const isLoading = ref(true)
+
+// Password change modal
+const showPasswordModal = ref(false)
+const pwStep = ref<'send' | 'confirm'>('send')
+const pwEmail = ref('')
+const pwCode = ref('')
+const pwNewPassword = ref('')
+const pwLoading = ref(false)
+const pwError = ref('')
+const pwSuccess = ref('')
+
+function openPasswordModal() {
+  pwStep.value = 'send'
+  pwCode.value = ''
+  pwNewPassword.value = ''
+  pwError.value = ''
+  pwSuccess.value = ''
+  pwEmail.value = authStore.user?.email || ''
+  showPasswordModal.value = true
+}
+
+async function sendResetCode() {
+  pwLoading.value = true
+  pwError.value = ''
+  pwSuccess.value = ''
+  try {
+    await api('/api/auth/password/reset', { method: 'POST', body: { email: pwEmail.value } })
+    pwStep.value = 'confirm'
+    pwSuccess.value = 'Код отправлен на email'
+  } catch (e: any) { pwError.value = e?.data?.message || 'Ошибка' }
+  finally { pwLoading.value = false }
+}
+
+async function confirmReset() {
+  pwLoading.value = true
+  pwError.value = ''
+  pwSuccess.value = ''
+  try {
+    await api('/api/auth/password/reset/confirm', {
+      method: 'POST',
+      body: { email: pwEmail.value, code: pwCode.value, new_password: pwNewPassword.value },
+    })
+    pwSuccess.value = 'Пароль изменён'
+    setTimeout(() => { showPasswordModal.value = false }, 1500)
+  } catch (e: any) { pwError.value = e?.data?.message || 'Ошибка' }
+  finally { pwLoading.value = false }
+}
 
 onMounted(async () => {
   if (!authStore.user) {
@@ -402,6 +476,87 @@ const handleLogout = async () => {
     height: 28rem;
     border: 0;
   }
+}
+
+/* Password modal */
+.profile-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.4);
+  padding: 2rem;
+}
+
+.profile-modal__content {
+  width: min(40rem, 100%);
+  padding: 2.4rem;
+  background: #fff;
+  border-radius: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.profile-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  h3 { font-size: 1.8rem; font-weight: 700; color: #333; }
+}
+
+.profile-modal__close {
+  width: 3.2rem; height: 3.2rem;
+  border: 0; background: #f5f5f5;
+  border-radius: 50%;
+  font-size: 2rem;
+  color: #666;
+  cursor: pointer;
+}
+
+.profile-modal__error {
+  padding: 0.8rem 1.2rem;
+  background: #fff5f5;
+  border-radius: 1rem;
+  color: #c62828;
+  font-size: 1.3rem;
+}
+
+.profile-modal__success {
+  padding: 0.8rem 1.2rem;
+  background: #e8f5e9;
+  border-radius: 1rem;
+  color: #2e7d32;
+  font-size: 1.3rem;
+}
+
+.profile-modal__content label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 1.25rem;
+  color: #888;
+  input {
+    height: 4.4rem;
+    padding: 0 1.2rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 1rem;
+    font-size: 1.4rem;
+  }
+}
+
+.profile-modal__content button[type="button"] {
+  min-height: 4.4rem;
+  border: 0;
+  border-radius: 1rem;
+  background: $linear-green;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  &:disabled { opacity: 0.5; }
 }
 
 @media (max-width: 767px) {

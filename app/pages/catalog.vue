@@ -2,8 +2,11 @@
 import auth from '~/middleware/auth'
 import ShopProductCard from '~/components/shop/productCard/ui/ShopProductCard.vue'
 import type { CatalogSort } from '~/types/catalog'
+import { useCartStore } from '~~/stores/cart'
 
 definePageMeta({ middleware: auth })
+
+const cartStore = useCartStore()
 
 interface SupplierOffer {
   supplier: string
@@ -124,16 +127,57 @@ const supId = computed(() => {
   return Array.isArray(raw) ? raw[0] : raw
 })
 const hasProduct = computed(() => artId.value && supId.value)
-const allOffers = computed(() => productDetail.value?.supplier_offers_exact ?? [])
-const analogueOffers = computed(() => productDetail.value?.supplier_offers_analogues ?? [])
+const allOffers = computed(() => {
+  const exact = productDetail.value?.supplier_offers_exact
+  if (exact?.length) return exact
+  return (productDetail.value?.supplier_offers ?? []).filter(o => !o.is_analog)
+})
+const analogueOffers = computed(() => {
+  const analogues = productDetail.value?.supplier_offers_analogues
+  if (analogues?.length) return analogues
+  return (productDetail.value?.supplier_offers ?? []).filter(o => o.is_analog)
+})
 const crosses = computed(() => productDetail.value?.crosses ?? [])
+
+function offerKey(offer: SupplierOffer): string {
+  return `${offer.supplier}-${offer.article_nr}-${offer.brand}`
+}
 
 const offerQuantities = reactive<Record<string, number>>({})
 
-function getQty(key: string | number) { return offerQuantities[String(key)] ?? 1 }
-function incQty(key: string | number) { offerQuantities[String(key)] = getQty(key) + 1 }
-function decQty(key: string | number) { const v = getQty(key); if (v > 1) offerQuantities[String(key)] = v - 1 }
+function getQty(key: string): number { return offerQuantities[key] ?? 1 }
+function incQty(key: string): void { offerQuantities[key] = getQty(key) + 1 }
+function decQty(key: string): void { const v = getQty(key); if (v > 1) offerQuantities[key] = v - 1 }
 function offerName(offer: SupplierOffer) { return offer.raw_data?.description || offer.raw_data?.name || `${offer.brand} ${offer.article_nr}` }
+
+function daysWord(n: number): string {
+  if (n % 10 === 1 && n % 100 !== 11) return 'дня'
+  return 'дней'
+}
+
+function offerDelivery(offer: SupplierOffer): string {
+  const raw = offer.raw_data
+  let days = 0
+
+  if (offer.delivery_days_max != null && offer.delivery_days_max > 0) {
+    days = offer.delivery_days_max + 2
+  } else {
+    const dateStr: string | null = raw?.delivery_date || raw?.shipmentDate || null
+    if (dateStr) {
+      const d = new Date(dateStr)
+      if (!isNaN(d.getTime())) {
+        days = Math.ceil((d.getTime() - Date.now()) / 86400000) + 2
+      }
+    }
+  }
+
+  if (days <= 0) return '—'
+  if (days <= 30) return `от ${days} ${daysWord(days)}`
+
+  const d = new Date()
+  d.setDate(d.getDate() + days)
+  return `от ${d.getDate().toString().padStart(2, '0')}.${(d.getMonth() + 1).toString().padStart(2, '0')}`
+}
 
 async function fetchProductDetail() {
   if (!artId.value || !supId.value) return
@@ -155,8 +199,33 @@ watch(() => [artId.value, supId.value], () => {
   if (hasProduct.value) fetchProductDetail()
 }, { immediate: true })
 
-function formatOfferPrice(price: number) {
+function formatOfferPrice(price: number): string {
   return `${price.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}₽`
+}
+
+const addedToCart = ref<Set<string>>(new Set())
+
+async function addToCart(offer: SupplierOffer): Promise<void> {
+  const key = `${offer.supplier}-${offer.article_nr}-${offer.brand}`
+  try {
+    await cartStore.addItem({
+      supplier: offer.supplier,
+      article_nr: offer.article_nr,
+      brand: offer.brand,
+      price: offer.price,
+      quantity: getQty(key),
+      supplier_data: offer.raw_data,
+      name: offerName(offer),
+    })
+    addedToCart.value = new Set([...addedToCart.value, key])
+    setTimeout(() => {
+      const next = new Set(addedToCart.value)
+      next.delete(key)
+      addedToCart.value = next
+    }, 1500)
+  } catch (e: any) {
+    console.error('Ошибка добавления в корзину:', e?.data?.message || e?.message)
+  }
 }
 
 watch(showFilters, (v) => { if (import.meta.client && window.innerWidth <= 991) document.body.style.overflow = v ? 'hidden' : '' })
@@ -248,6 +317,7 @@ watch(() => route.fullPath, () => { showFilters.value = false })
                     <th>Описание</th>
                     <th class="offer-table__center">Наличие</th>
                     <th class="offer-table__center">Кол-во</th>
+                    <th class="offer-table__center">Доставка</th>
                     <th class="offer-table__center">Цена</th>
                     <th></th>
                   </tr>
@@ -259,14 +329,15 @@ watch(() => route.fullPath, () => { showFilters.value = false })
                     <td class="offer-table__center offer-table__stock">{{ offer.quantity }} шт.</td>
                     <td class="offer-table__center">
                       <div class="qty-picker">
-                        <button type="button" class="qty-picker__btn" @click="decQty(idx)">−</button>
-                        <span class="qty-picker__val">{{ getQty(idx) }}</span>
-                        <button type="button" class="qty-picker__btn" @click="incQty(idx)">+</button>
+                        <button type="button" class="qty-picker__btn" @click="decQty(offerKey(offer))">−</button>
+                        <span class="qty-picker__val">{{ getQty(offerKey(offer)) }}</span>
+                        <button type="button" class="qty-picker__btn" @click="incQty(offerKey(offer))">+</button>
                       </div>
                     </td>
+                    <td class="offer-table__center offer-table__delivery">{{ offerDelivery(offer) }}</td>
                     <td class="offer-table__center offer-table__price">{{ formatOfferPrice(offer.price) }}</td>
                     <td class="offer-table__action">
-                      <button type="button" class="offer-table__cart" title="В корзину">
+                      <button type="button" class="offer-table__cart" :class="{ 'offer-table__cart--added': addedToCart.has(offerKey(offer)) }" title="В корзину" @click="addToCart(offer)">
                         <NuxtImg src="/icons/Cart.svg" alt="" width="22" height="22" />
                       </button>
                     </td>
@@ -291,7 +362,7 @@ watch(() => route.fullPath, () => { showFilters.value = false })
               <h3 class="product-detail__section-title">Аналоги</h3>
               <div class="product-detail__table-wrap">
                 <table class="offer-table">
-                  <thead><tr><th>Артикул</th><th>Описание</th><th class="offer-table__center">Наличие</th><th class="offer-table__center">Кол-во</th><th class="offer-table__center">Цена</th><th></th></tr></thead>
+                  <thead><tr><th>Артикул</th><th>Описание</th><th class="offer-table__center">Наличие</th><th class="offer-table__center">Кол-во</th><th class="offer-table__center">Доставка</th><th class="offer-table__center">Цена</th><th></th></tr></thead>
                   <tbody>
                     <tr v-for="(offer, idx) in analogueOffers" :key="'a'+idx">
                       <td class="offer-table__article">{{ offer.article_nr }}</td>
@@ -299,13 +370,14 @@ watch(() => route.fullPath, () => { showFilters.value = false })
                       <td class="offer-table__center offer-table__stock">{{ offer.quantity }} шт.</td>
                       <td class="offer-table__center">
                         <div class="qty-picker">
-                          <button type="button" class="qty-picker__btn" @click="decQty('a'+idx)">−</button>
-                          <span class="qty-picker__val">{{ getQty('a'+idx) }}</span>
-                          <button type="button" class="qty-picker__btn" @click="incQty('a'+idx)">+</button>
+                          <button type="button" class="qty-picker__btn" @click="decQty(offerKey(offer))">−</button>
+                          <span class="qty-picker__val">{{ getQty(offerKey(offer)) }}</span>
+                          <button type="button" class="qty-picker__btn" @click="incQty(offerKey(offer))">+</button>
                         </div>
                       </td>
+                      <td class="offer-table__center offer-table__delivery">{{ offerDelivery(offer) }}</td>
                       <td class="offer-table__center offer-table__price">{{ formatOfferPrice(offer.price) }}</td>
-                      <td class="offer-table__action"><button type="button" class="offer-table__cart" title="В корзину"><NuxtImg src="/icons/Cart.svg" alt="" width="22" height="22" /></button></td>
+                      <td class="offer-table__action"><button type="button" class="offer-table__cart" :class="{ 'offer-table__cart--added': addedToCart.has(offerKey(offer)) }" title="В корзину" @click="addToCart(offer)"><NuxtImg src="/icons/Cart.svg" alt="" width="22" height="22" /></button></td>
                     </tr>
                   </tbody>
                 </table>
@@ -910,6 +982,12 @@ watch(() => route.fullPath, () => { showFilters.value = false })
   color: $green;
 }
 
+.offer-table__delivery {
+  font-size: 1.3rem;
+  color: #656565;
+  white-space: nowrap;
+}
+
 .offer-table__price {
   font-weight: 700;
   font-size: 1.6rem;
@@ -967,6 +1045,11 @@ watch(() => route.fullPath, () => { showFilters.value = false })
     width: 2rem;
     height: 2rem;
     filter: brightness(0) invert(1);
+  }
+
+  &.offer-table__cart--added {
+    background: $green;
+    transform: scale(1.1);
   }
 }
 

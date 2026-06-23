@@ -3,8 +3,10 @@ import Search from '~/components/shop/search/ui/Search.vue'
 import Icon from '~/shared/ui-kit/Icon/Icon.vue'
 import { helpPhone, helpPhoneHref } from '~/shared/lib/navigation'
 import { useAuthStore } from '~~/stores/auth'
+import { useCartStore } from '~~/stores/cart'
 
 const authStore = useAuthStore()
+const cartStore = useCartStore()
 const isMounted = ref(false)
 
 const emit = defineEmits<{
@@ -12,9 +14,11 @@ const emit = defineEmits<{
 }>()
 
 const searchQuery = ref('')
+const showAuthPopup = ref(false)
 
 function handleSearch(value: string) {
   if (!value.trim()) return
+  if (!authStore.isAuthenticated) { showAuthPopup.value = true; return }
   navigateTo(`/articles/search?article=${encodeURIComponent(value.trim())}`)
 }
 
@@ -65,6 +69,13 @@ onMounted(() => {
         </NuxtLink>
       </div>
 
+      <div class="mobile-store-header__quick">
+        <NuxtLink to="/cart" class="mobile-store-header__cart-link" aria-label="Корзина">
+          <Icon name="Cart" width="24" height="24" />
+          <span v-if="cartStore.totalCount" class="mobile-store-header__cart-badge">{{ cartStore.totalCount }}</span>
+        </NuxtLink>
+      </div>
+
       <div class="mobile-store-header__search">
         <Search v-model="searchQuery" placeholder="Поиск по VIN, или артикулу" @submit="handleSearch" />
       </div>
@@ -79,6 +90,20 @@ onMounted(() => {
       </div>
     </div>
   </header>
+
+  <Teleport to="body">
+    <div v-if="showAuthPopup" class="shop-auth-popup" @click.self="showAuthPopup = false">
+      <div class="shop-auth-popup__content">
+        <h3>Авторизуйтесь, чтобы пользоваться поиском</h3>
+        <p>Для поиска по VIN и артикулам необходимо войти в аккаунт</p>
+        <div class="shop-auth-popup__actions">
+          <NuxtLink class="shop-auth-popup__btn shop-auth-popup__btn--primary" to="/auth/login" @click="showAuthPopup = false">Войти</NuxtLink>
+          <NuxtLink class="shop-auth-popup__btn shop-auth-popup__btn--ghost" to="/auth/signin" @click="showAuthPopup = false">Зарегистрироваться</NuxtLink>
+        </div>
+        <button type="button" class="shop-auth-popup__close" @click="showAuthPopup = false">Продолжить без авторизации</button>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <style scoped lang="scss">
@@ -143,6 +168,35 @@ onMounted(() => {
       animation: pulse 1.5s ease-in-out infinite;
     }
   }
+}
+
+.mobile-store-header__quick {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -0.6rem;
+}
+
+.mobile-store-header__cart-link {
+  position: relative;
+  display: inline-flex;
+  color: #5d5d5d;
+}
+
+.mobile-store-header__cart-badge {
+  position: absolute;
+  top: -0.3rem;
+  right: -0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6rem;
+  height: 1.6rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: $orange;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 @keyframes pulse {
@@ -214,10 +268,60 @@ onMounted(() => {
   .mobile-store-header__phone {
     font-size: 1.45rem;
   }
+}
+
+.shop-auth-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 2rem;
+}
+
+.shop-auth-popup__content {
+  width: min(40rem, 100%);
+  padding: 2.8rem 2.4rem;
+  background: #fff;
+  border-radius: 2.4rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  h3 { font-size: 2rem; font-weight: 700; color: #222; }
+  p { font-size: 1.4rem; color: #777; line-height: 1.5; }
+}
+
+.shop-auth-popup__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 0.6rem;
+}
+
+.shop-auth-popup__btn {
+  display: block;
+  min-height: 4.8rem;
+  line-height: 4.8rem;
+  border-radius: 1.2rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  &--primary { background: $linear-green; color: #fff; }
+  &--ghost { background: #f0f7f1; color: $green; }
+}
+
+.shop-auth-popup__close {
+  border: 0; background: none; font-size: 1.3rem; color: #999; cursor: pointer; padding: 0.6rem;
+  &:hover { color: #666; }
+}
 
   .mobile-store-header__address {
     gap: 0.55rem;
     font-size: 1.4rem;
   }
-}
+
 </style>

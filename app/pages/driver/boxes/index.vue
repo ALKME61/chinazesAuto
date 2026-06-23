@@ -5,34 +5,46 @@ definePageMeta({
   layout: 'driver'
 })
 
-const addresses = ref([
-  {
-    id: 1, title: 'Г. Ростов-на-Дону, ул. Пушкинская 1', boxes: [
-      {
-        id: 1, addressTitle: 'Г. Ростов-на-Дону, ул. Пушкинская 1', deliveryType: 'outcoming'
-      },
-      {
-        id: 2, addressTitle: 'Г. Ростов-на-Дону, ул. Пушкинская 1', deliveryType: 'outcomingcoming'
-      },
-      {
-        id: 3, addressTitle: 'Г. Ростов-на-Дону, ул. Пушкинская 1', deliveryType: 'outcoming'
-      },
-    ]
-  },
-  {
-    id: 2, title: 'Г. Ростов-на-Дону, ул. Большая Садовая 34', boxes: [
-      {
-        id: 1, addressTitle: 'Г. Ростов-на-Дону, ул. Большая Садовая 34', deliveryType: 'outcoming'
-      },
-      {
-        id: 2, addressTitle: 'Г. Ростов-на-Дону, ул. Большая Садовая 34', deliveryType: 'outcoming'
-      },
-      {
-        id: 3, addressTitle: 'Г. Ростов-на-Дону, ул. Большая Садовая 34', deliveryType: 'outcoming'
-      },
-    ]
-  }
-])
+const api = useAPI()
+const loading = ref(true)
+const routes = ref<any[]>([])
+
+async function loadRoutes() {
+  loading.value = true
+  try {
+    const data: any = await api('/api/warehouse/driver/routes')
+    routes.value = data?.results || []
+  } catch { routes.value = [] }
+  finally { loading.value = false }
+}
+
+onMounted(loadRoutes)
+
+const addresses = computed(() =>
+  routes.value.map((r: any) => ({
+    id: r.id,
+    title: r.dest || r.destination || 'ПВЗ',
+    boxes: Array.from({ length: r.boxes || 0 }, (_, i) => ({
+      id: i + 1,
+      addressTitle: r.source || '',
+      deliveryType: 'outcoming',
+    })),
+  }))
+)
+
+async function startRoute(id: number) {
+  try {
+    await api(`/api/warehouse/route/${id}/start`, { method: 'POST' })
+    await loadRoutes()
+  } catch { alert('Ошибка') }
+}
+
+async function completeRoute(id: number) {
+  try {
+    await api(`/api/warehouse/route/${id}/complete`, { method: 'POST' })
+    await loadRoutes()
+  } catch { alert('Ошибка') }
+}
 
 </script>
 <template>
@@ -45,17 +57,17 @@ const addresses = ref([
       <Icon name="deliverDriverIcon" size="24"></Icon>
       <h2>В машине</h2>
     </div>
-    <div class="boxes">
-      <div class="boxes__container" v-for="address in addresses">
-        <p>{{ address.title }}</p>
-        <div class="boxes__for-address">
-          <div class="box" v-for="box in address.boxes">
-            <h1>{{ box.addressTitle }}</h1>
-            <div class="box__info">
-              <span>{{ `№ ${box.id}` }}</span>
-              <NuxtImg src="/icons/giveBoxIcon.svg"></NuxtImg>
-            </div>
-          </div>
+    <div v-if="loading" class="boxes__loading">Загрузка...</div>
+
+    <div v-else-if="!routes.length" class="boxes__loading">Нет активных маршрутов</div>
+
+    <div v-else class="boxes">
+      <div v-for="route in routes" :key="route.id" class="boxes__container">
+        <p>{{ route.source || 'Склад' }} → {{ route.dest || route.destination || 'ПВЗ' }}</p>
+        <p class="boxes__status">Статус: {{ route.status }} · Коробок: {{ route.boxes || 0 }}</p>
+        <div class="boxes__actions">
+          <button v-if="route.status === 'new'" type="button" class="boxes__action" @click="startRoute(route.id)">Начать маршрут</button>
+          <button v-if="route.status === 'in_transit'" type="button" class="boxes__action" @click="completeRoute(route.id)">Завершить</button>
         </div>
       </div>
     </div>

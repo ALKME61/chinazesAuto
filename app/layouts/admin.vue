@@ -2,12 +2,14 @@
 const route = useRoute()
 
 const navItems = [
-  { label: 'Заказы', icon: 'orders', to: '/admin' },
+  { label: 'Дашборд', icon: 'orders', to: '/admin' },
   { label: 'Клиенты', icon: 'clients', to: '/admin/clients' },
+  { label: 'Финансы', icon: 'orders', to: '/admin/finance' },
   { label: 'Обращения', icon: 'message', to: '/admin/support' },
   { label: 'Уведомления', icon: 'bell', to: '/admin/notifications' },
   { label: 'Склад', icon: 'warehouse', to: '/admin/warehouse' },
   { label: 'ПВЗ', icon: 'store', to: '/admin/pvz' },
+  { label: 'Наценки', icon: 'orders', to: '/admin/pricing' },
   { label: 'Настройки', icon: 'settings', to: '/admin/settings' },
 ]
 </script>
