@@ -2,10 +2,26 @@
 import PvzIcon from '~/components/pvz/PvzIcon.vue'
 
 const route = useRoute()
+const { useAuthStore } = await import('~~/stores/auth')
+const authStore = useAuthStore()
+const api = useAPI()
+
+const pvzInfo = ref<{ name: string; address: string } | null>(null)
+
+async function loadPvzInfo() {
+  const managedPvz = authStore.user?.managed_pvz
+  if (!managedPvz) return
+  try {
+    const data: any = await api('/api/warehouse/pickup-points')
+    const points = Array.isArray(data) ? data : (data?.results || [])
+    const found = points.find((p: any) => p.id === managedPvz)
+    if (found) pvzInfo.value = { name: found.name || `ПВЗ №${found.id}`, address: found.address || found.city || '' }
+  } catch {}
+}
+
+onMounted(loadPvzInfo)
 
 async function handleLogout() {
-  const { useAuthStore } = await import('~~/stores/auth')
-  const authStore = useAuthStore()
   await authStore.logout()
   await navigateTo('/auth/login')
 }
@@ -69,8 +85,8 @@ const isActive = (target: string) => {
       <div class="pvz-layout__operator">
         <div>
           <span>Смена</span>
-          <strong>Алексей Курбатов</strong>
-          <small>ПВЗ МО, ул. Пушкина 3</small>
+          <strong>{{ authStore.user?.email || 'Сотрудник' }}</strong>
+          <small>{{ pvzInfo?.name || `ПВЗ #${authStore.user?.managed_pvz || ''}` }}{{ pvzInfo?.address ? ', ' + pvzInfo.address : '' }}</small>
         </div>
 
         <button type="button" class="pvz-layout__logout" aria-label="Выйти из ПВЗ" @click="handleLogout">

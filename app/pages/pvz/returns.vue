@@ -33,7 +33,7 @@ async function loadReturns() {
     if (statusFilter.value) params.status = statusFilter.value
     if (pvzIdFilter.value) params.pvz_id = pvzIdFilter.value
     const data: any = await api('/api/warehouse/returns', { params })
-    returnsList.value = data?.results || (Array.isArray(data) ? data : [data] || [])
+    returnsList.value = Array.isArray(data?.results) ? data.results : (Array.isArray(data) ? data : [])
   } catch {
     error.value = 'Ошибка загрузки возвратов'
     returnsList.value = []
@@ -42,7 +42,14 @@ async function loadReturns() {
   }
 }
 
-onMounted(() => { if (mode.value === 'list') loadReturns() })
+onMounted(() => {
+  if (mode.value === 'list') loadReturns()
+  document.addEventListener('keydown', onGlobalKeyDown)
+})
+onUnmounted(() => {
+  document.removeEventListener('keydown', onGlobalKeyDown)
+  if (scanTimer) clearTimeout(scanTimer)
+})
 
 watch(mode, (m) => { if (m === 'list') loadReturns() })
 
@@ -51,6 +58,37 @@ const conditions = [
   { value: 'used', label: 'Б/У' },
   { value: 'defective', label: 'Брак' },
 ] as const
+
+let scanBuffer = ''
+let scanLastTime = 0
+let scanTimer: ReturnType<typeof setTimeout> | null = null
+const SCAN_GAP_MS = 300
+
+function onGlobalKeyDown(e: KeyboardEvent) {
+  if (e.key === 'Enter') {
+    if (scanBuffer.startsWith('*-')) {
+      e.preventDefault()
+      returnOrderId.value = scanBuffer.slice(2).trim()
+      if (returnOrderId.value) { scanBuffer = ''; loadOrder() }
+    }
+    scanBuffer = ''
+    return
+  }
+  if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey) return
+  const now = Date.now()
+  if (scanLastTime && now - scanLastTime > SCAN_GAP_MS) scanBuffer = ''
+  scanLastTime = now
+  scanBuffer += e.key
+  if (!scanBuffer.startsWith('*-') && scanBuffer.length > 1) { scanBuffer = ''; scanLastTime = 0; return }
+  if (scanTimer) clearTimeout(scanTimer)
+  scanTimer = setTimeout(() => {
+    if (scanBuffer.startsWith('*-')) {
+      returnOrderId.value = scanBuffer.slice(2).trim()
+      if (returnOrderId.value) loadOrder()
+    }
+    scanBuffer = ''; scanLastTime = 0; scanTimer = null
+  }, SCAN_GAP_MS)
+}
 
 const returnOrderId = ref('')
 const orderData = ref<any>(null)
@@ -62,14 +100,15 @@ const creatingReturn = ref(false)
 const createResult = ref<any>(null)
 
 async function loadOrder() {
-  if (!returnOrderId.value.trim()) return
+  const id = String(returnOrderId.value).trim()
+  if (!id) return
   orderLoading.value = true
   orderData.value = null
   selectedItems.clear()
   itemConditions.value = {}
   error.value = ''
   try {
-    const data: any = await api(`/api/warehouse/order/${returnOrderId.value.trim()}/`)
+    const data: any = await api(`/api/warehouse/order/${id}/`)
     orderData.value = data
   } catch {
     error.value = 'Заказ не найден или недоступен'
@@ -93,7 +132,7 @@ const returnItems = computed(() => {
 })
 
 async function submitReturn() {
-  if (!returnOrderId.value.trim() || !returnItems.value.length || !returnReason.value.trim()) {
+  if (!String(returnOrderId.value).trim() || !returnItems.value.length || !returnReason.value.trim()) {
     error.value = 'Выберите товары и укажите причину'
     return
   }
@@ -102,8 +141,7 @@ async function submitReturn() {
   createResult.value = null
   try {
     const body: any = {
-      order_id: Number(returnOrderId.value),
-      pvz_id: 5,
+      order_id: Number(String(returnOrderId.value).trim()),
       reason: returnReason.value,
       items: returnItems.value.map((i: any) => ({
         order_item_id: i.id || i.order_item_id,
@@ -696,6 +734,71 @@ async function createReturnBox(id: number) {
 .pvz-page__danger {
   background: #fff0f0;
   color: #c62828;
+}
+
+.pvz-page__return-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem 1.4rem;
+  background: #fafafa;
+  border: 1px solid #efefef;
+  border-radius: 1.2rem;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f0f7f1;
+  }
+}
+
+.pvz-page__return-item--selected {
+  background: #e8f5e9;
+  border-color: #c8e6c9;
+}
+
+.pvz-page__return-item-check {
+  flex: 0 0 2.4rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pvz-page__return-item-checked {
+  width: 1.4rem;
+  height: 1.4rem;
+  background: #18b536;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.pvz-page__return-item-info {
+  flex: 1;
+  display: grid;
+  gap: 0.2rem;
+
+  strong {
+    font-size: 1.45rem;
+    color: #333;
+  }
+
+  span {
+    font-size: 1.25rem;
+    color: #777;
+  }
+}
+
+.pvz-page__return-item-condition {
+  flex: 0 0 auto;
 }
 
 @media (max-width: 1380px) {

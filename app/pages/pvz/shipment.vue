@@ -88,21 +88,31 @@ const movementMode = computed<MovementMode>({
 const scanValue = ref('')
 const scannedItems = ref<ScannedItem[]>([])
 
-const destinations = {
-  pvz: [
-    { value: '3', label: 'ПВЗ Чернухино' },
-    { value: '4', label: 'ПВЗ Артемовск' },
-    { value: '5', label: 'ПВЗ Алчевск' },
-  ],
-  warehouse: [
-    { value: '1', label: 'Ростов (склад)' },
-  ],
+type DestItem = { value: string; label: string }
+
+const pvzDestinations = ref<DestItem[]>([])
+const warehouseDestinations = ref<DestItem[]>([])
+
+async function loadDestinations() {
+  try {
+    const data: any = await api('/api/warehouse/pickup-points')
+    const points = Array.isArray(data) ? data : (data?.results || [])
+    pvzDestinations.value = points.filter((p: any) => p.type !== 'склад').map((p: any) => ({ value: String(p.id), label: p.name || `ПВЗ №${p.id}` }))
+    warehouseDestinations.value = points.filter((p: any) => p.type === 'склад').map((p: any) => ({ value: String(p.id), label: p.name || `Склад #${p.id}` }))
+  } catch {}
+}
+
+onMounted(loadDestinations)
+
+const destinations = computed(() => ({
+  pvz: pvzDestinations.value.length ? pvzDestinations.value : [{ value: '5', label: 'ПВЗ Алчевск' }],
+  warehouse: warehouseDestinations.value.length ? warehouseDestinations.value : [{ value: '1', label: 'Ростов (склад)' }],
   cell: [
     { value: '113', label: 'СПЯ 113' },
     { value: '114', label: 'СПЯ 114' },
     { value: '115', label: 'СПЯ 115' },
   ],
-} as const
+}))
 
 const selectedDestination = ref('5')
 

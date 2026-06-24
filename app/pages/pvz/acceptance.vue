@@ -13,7 +13,9 @@ definePageMeta({
 
 const api = useAPI()
 const route = useRoute()
-const router = useRouter()
+const { useAuthStore } = await import('~~/stores/auth')
+const authStore = useAuthStore()
+const managedPvz = computed(() => authStore.user?.managed_pvz || 1)
 
 const mode = computed(() => {
   if (route.query.mode === 'supplier') return 'supplier'
@@ -43,7 +45,7 @@ async function scanBarcode() {
       method: 'POST',
       body: {
         barcode: barcode.value.trim(),
-        pvz_id: 1,
+        pvz_id: managedPvz.value,
         supplier: selectedSupplier.value,
       },
     })
@@ -74,7 +76,7 @@ async function submitBatch() {
     const data: any = await api('/api/warehouse/receive/batch', {
       method: 'POST',
       body: {
-        pvz_id: 1,
+        pvz_id: managedPvz.value,
         supplier: selectedSupplier.value,
         items: pendingItems.value.map((p: any) => ({ order_item_id: p.order_item_id })),
       },

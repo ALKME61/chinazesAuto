@@ -14,7 +14,24 @@ definePageMeta({
 
 const api = useAPI()
 const route = useRoute()
+const { useAuthStore } = await import('~~/stores/auth')
+const authStore = useAuthStore()
 const mode = computed(() => (route.query.mode === 'sms' ? 'sms' : 'qr'))
+const pvzName = ref('')
+
+async function loadPvzName() {
+  const managedPvz = authStore.user?.managed_pvz
+  if (!managedPvz) return
+  try {
+    const data: any = await api('/api/warehouse/pickup-points')
+    const points = Array.isArray(data) ? data : (data?.results || [])
+    const found = points.find((p: any) => p.id === managedPvz)
+    if (found) pvzName.value = found.name || `ПВЗ №${found.id}`
+  } catch {}
+}
+
+onMounted(loadPvzName)
+
 const orderId = ref('')
 const orderItems = ref<any[]>([])
 const checkedItems = ref<Set<number>>(new Set())
@@ -158,7 +175,7 @@ function onQrDetect(detected: any[]) {
         <div class="pvz-page__operator-grid">
           <article>
             <strong>Оператор</strong>
-            <p>Алексей Курбатов<br>ПВЗ МО, ул. Пушкина 3</p>
+            <p>{{ authStore.user?.email || 'Сотрудник' }}<br>{{ pvzName || `ПВЗ #${authStore.user?.managed_pvz || ''}` }}</p>
           </article>
           <article>
             <strong>Смена</strong>

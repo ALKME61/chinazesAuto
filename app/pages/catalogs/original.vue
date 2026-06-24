@@ -242,6 +242,7 @@ async function selectModel(m: any, fromUrl = false) {
 }
 
 async function selectModification(mod: any, fromUrl = false) {
+  if (mod.pc_id) sessionStorage.setItem('pc_id', String(mod.pc_id))
   if (!fromUrl) navTo({ mfa_id: mfaId.value, brand: brandName.value, ms_id: msId.value, model: modelName.value, pc_id: mod.pc_id, mod: mod.name })
   catsLoading.value = true; categories.value = []; catBreadcrumbs.value = []
   try { categories.value = (await api(`/api/articles/cars/vehicle/${mod.pc_id}/categories`))?.results || [] }

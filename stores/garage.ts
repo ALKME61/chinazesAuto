@@ -6,11 +6,14 @@ export interface GarageVehicle {
   year?: number
   is_primary?: boolean
   title?: string
+  pc_id?: number
 }
 
 export const useGarageStore = defineStore('garage', () => {
   const vehicles = ref<GarageVehicle[]>([])
   const isLoading = ref(true)
+
+  const primaryVehicle = computed(() => vehicles.value.find(v => v.is_primary))
 
   function parseVehicle(v: any): GarageVehicle {
     return {
@@ -21,6 +24,7 @@ export const useGarageStore = defineStore('garage', () => {
       year: v.year || v.model_year || null,
       is_primary: v.is_primary || v.is_main || false,
       title: v.title || v.name || `${v.brand || v.manufacturer || ''} ${v.model || v.model_name || ''}`.trim() || v.vin,
+      pc_id: v.pc_id || v.pcId || undefined,
     }
   }
 
@@ -64,5 +68,5 @@ export const useGarageStore = defineStore('garage', () => {
     vehicles.value.forEach(v => { v.is_primary = v.id === id })
   }
 
-  return { vehicles, isLoading, fetchVehicles, addVehicle, removeVehicle, setPrimary }
+  return { vehicles, isLoading, primaryVehicle, fetchVehicles, addVehicle, removeVehicle, setPrimary }
 })
